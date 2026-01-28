@@ -1,0 +1,68 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "espressif",
+      "displayName": "Espressif",
+      "description": "Espressif CMake Preset",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build_${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "TARGET_PLATFORM": "esp32c3"
+      },
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Espressif"
+        }
+      }
+    },
+    {
+      "name": "linux",
+      "displayName": "Host - Linux",
+      "description": "Linux CMake Preset",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build_${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "TARGET_PLATFORM": "linux"
+      }
+    },
+    {
+      "name": "darwin",
+      "displayName": "Host - Darwin",
+      "description": "Darwin CMake Preset",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build_${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "TARGET_PLATFORM": "darwin"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "espressif",
+      "configurePreset": "espressif",
+      "jobs": 8
+    },
+    {
+      "name": "linux",
+      "configurePreset": "linux",
+      "jobs": 8
+    },
+    {
+      "name": "darwin",
+      "configurePreset": "darwin",
+      "jobs": 8
+    }
+  ]
+}

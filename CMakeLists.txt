@@ -12,7 +12,7 @@ message(STATUS "Target platform: ${TARGET_PLATFORM}")
 
 if (NOT TARGET_PLATFORM STREQUAL "esp32c3")
     add_subdirectory(modules/ignis_main)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Werror")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Werror -Wno-variadic-macro-arguments-omitted")
     add_compile_definitions(HOST_COMPILATION)
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         include(FetchContent)
@@ -21,15 +21,6 @@ if (NOT TARGET_PLATFORM STREQUAL "esp32c3")
                 GIT_REPOSITORY https://github.com/google/googletest.git
                 GIT_TAG v1.16.0
         )
-        set(GCC_COVERAGE_COMPILE_FLAGS "-g -O0 -coverage -fprofile-arcs -ftest-coverage")
-
-        if (TARGET_PLATFORM STREQUAL "linux")
-            set(GCC_COVERAGE_LINK_FLAGS "-coverage -lgcov")
-        elseif (TARGET_PLATFORM STREQUAL "darwin")
-        endif ()
-
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
         FetchContent_MakeAvailable(gtest)
         enable_testing()
@@ -37,3 +28,7 @@ if (NOT TARGET_PLATFORM STREQUAL "esp32c3")
         add_subdirectory(libs/fff)
     endif ()
 endif ()
+
+add_subdirectory(modules/ignis_core)
+add_subdirectory(modules/ignis_keymap)
+add_subdirectory(libs/k_osal)

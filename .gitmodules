@@ -1,3 +1,6 @@
 [submodule "libs/fff"]
 	path = libs/fff
 	url = https://github.com/meekrosoft/fff.git
+[submodule "libs/k_ghost_io/k_ghost_io"]
+	path = libs/k_ghost_io/k_ghost_io
+	url = https://github.com/arasan90/k_ghost_io.git

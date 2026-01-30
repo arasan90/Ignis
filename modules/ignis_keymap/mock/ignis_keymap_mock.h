@@ -21,9 +21,14 @@ extern "C"
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
+DECLARE_FAKE_VOID_FUNC(ignis_keymap_start)
 DECLARE_FAKE_VOID_FUNC(ignis_keymap_register_callback, ignis_keymap_callback_t)
 
-inline void ignis_keymap_mock_reset_fakes(void) { RESET_FAKE(ignis_keymap_register_callback); }
+inline void ignis_keymap_mock_reset_fakes(void)
+{
+    RESET_FAKE(ignis_keymap_register_callback);
+    RESET_FAKE(ignis_keymap_start);
+}
 #ifdef __cplusplus
 }
 #endif

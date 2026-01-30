@@ -14,4 +14,5 @@
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Definitions ------------------------------------------------------*/
+void ignis_keymap_start(void) {}
 void ignis_keymap_register_callback(const ignis_keymap_callback_t callback) { (void)callback; }

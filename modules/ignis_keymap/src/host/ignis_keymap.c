@@ -5,14 +5,14 @@
  * @date    29/01/26
  ********************************************************************************
  */
-#include "ignis_keymap_mock.h"
-
 /* Includes ------------------------------------------------------------------*/
+#include "ignis_keymap.h"
+
 /* Macros --------------------------------------------------------------------*/
 /* Typedefs ------------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Definitions ------------------------------------------------------*/
-DEFINE_FAKE_VOID_FUNC(ignis_keymap_start)
-DEFINE_FAKE_VOID_FUNC(ignis_keymap_register_callback, ignis_keymap_callback_t)
+void ignis_keymap_start(void) {}
+void ignis_keymap_register_callback(const ignis_keymap_callback_t callback) { (void)callback; }

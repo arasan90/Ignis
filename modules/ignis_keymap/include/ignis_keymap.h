@@ -35,6 +35,7 @@ typedef void (*ignis_keymap_callback_t)(ignis_keymap_key_t key);
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
+void ignis_keymap_start(void);
 void ignis_keymap_register_callback(ignis_keymap_callback_t callback);
 
 #ifdef __cplusplus

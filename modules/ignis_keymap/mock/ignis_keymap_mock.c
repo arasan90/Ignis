@@ -1,25 +1,17 @@
 /**
  ********************************************************************************
- * @file    ignis_main.h
+ * @file    ignis_keymap.c
  * @author  Massimiliano Ianniello
- * @date    28/01/26
+ * @date    29/01/26
  ********************************************************************************
  */
-#ifndef IGNIS_MAIN_H
-#define IGNIS_MAIN_H
+#include "ignis_keymap_mock.h"
 
 /* Includes ------------------------------------------------------------------*/
 /* Macros --------------------------------------------------------------------*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 /* Typedefs ------------------------------------------------------------------*/
+/* Function Declarations -----------------------------------------------------*/
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
-/* Function Declarations -----------------------------------------------------*/
-  int main(void);
-
-#ifdef __cplusplus
-}
-#endif
-#endif // IGNIS_MAIN_H
+/* Function Definitions ------------------------------------------------------*/
+DEFINE_FAKE_VOID_FUNC(ignis_keymap_register_callback, ignis_keymap_callback_t)

@@ -1,18 +1,30 @@
 /**
  ********************************************************************************
- * @file    ignis_main.c
+ * @file    ignis_core_mock.h
  * @author  Massimiliano Ianniello
- * @date    28/01/26
+ * @date    30/01/26
  ********************************************************************************
  */
+#ifndef IGNIS_CORE_MOCK_H
+#define IGNIS_CORE_MOCK_H
+
 /* Includes ------------------------------------------------------------------*/
-#include "../ignis_main.h"
+
+#include "fff.h"
+#include "ignis_core.h"
 
 /* Macros --------------------------------------------------------------------*/
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 /* Typedefs ------------------------------------------------------------------*/
-/* Function Declarations -----------------------------------------------------*/
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
-/* Function Definitions ------------------------------------------------------*/
+/* Function Declarations -----------------------------------------------------*/
+DECLARE_FAKE_VOID_FUNC(ignis_core_start)
 
-int app_main(void) { return ignis_main(); }
+#ifdef __cplusplus
+}
+#endif
+#endif  // IGNIS_CORE_MOCK_H

@@ -82,6 +82,8 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
         case IGNIS_KEYMAP_KEY_ESC:
             esc_pressed = 1;
             break;
+        default:
+            break;
     }
     switch (ignis_core_context.state)
     {

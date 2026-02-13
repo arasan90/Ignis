@@ -36,7 +36,15 @@ typedef void (*ignis_keymap_callback_t)(ignis_keymap_key_t key);
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
+/**
+ * @brief Start the communication with the keypad
+ */
 void ignis_keymap_start(void);
+
+/**
+ * @brief Register the callback to be called when a key is pressed
+ * @param callback Callback to call
+ */
 void ignis_keymap_register_callback(ignis_keymap_callback_t callback);
 
 #ifdef __cplusplus

@@ -2,6 +2,7 @@ set(MAIN_TARGET)
 
 set(PRIVATE_LIBS
         ignis_core
+        ignis_keymap
         k_osal
 )
 
@@ -14,7 +15,7 @@ else ()
     set(CMAKE_BUILD_TYPE Debug)
     add_executable(${PROJECT_NAME} src/${TARGET_PLATFORM}/ignis_main.c src/ignis_main.c)
     set(MAIN_TARGET ${PROJECT_NAME})
-    set(PRIVATE_LIBS ${PRIVATE_LIBS})
+    set(PRIVATE_LIBS ${PRIVATE_LIBS} k_ghost_io)
 endif ()
 
 target_link_libraries(${MAIN_TARGET} PRIVATE ${PRIVATE_LIBS})

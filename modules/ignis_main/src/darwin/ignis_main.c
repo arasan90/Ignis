@@ -8,6 +8,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "ignis_main.h"
 
+#include "k_ghost_io.h"
 #include "k_osal/thread.h"
 
 /* Macros --------------------------------------------------------------------*/
@@ -18,6 +19,7 @@
 /* Function Definitions ------------------------------------------------------*/
 int main(void)
 {
+    k_ghost_io_init();
     ignis_main();
     while (1)
     {

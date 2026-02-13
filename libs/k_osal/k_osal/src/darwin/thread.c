@@ -8,9 +8,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "k_osal/thread.h"
 
-#include <limits.h>
 #include <pthread.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -51,9 +49,7 @@ void *k_osal_thread_func_generic(void *param)
     const k_osal_thread_context_t *ctx = param;
     if (ctx->thread_func)
     {
-        printf("Starting thread function\n\r");
         ctx->thread_func(ctx->param);
-        printf("Exited from thread function\n\r");
     }
     return NULL;
 }

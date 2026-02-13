@@ -9,7 +9,6 @@
 #define IGNIS_CORE_PRIV_H
 
 /* Includes ------------------------------------------------------------------*/
-#include <stddef.h>
 #include <stdint.h>
 
 #include "ignis_keymap.h"

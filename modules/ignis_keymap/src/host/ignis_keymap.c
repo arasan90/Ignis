@@ -9,6 +9,7 @@
 #include "ignis_keymap.h"
 
 #include <string.h>
+#include <stdio.h>
 
 #include "cJSON.h"
 #include "ignis_keymap_priv.h"
@@ -24,29 +25,27 @@ ignis_keymap_ctx_t ignis_keymap_ctx = {0};
 void ignis_keymap_start(void)
 {
     k_ghost_io_init();
-    if (K_GHOST_REGISTER_RET_CODE_ERROR != k_ghost_io_register_interface("keymap", NULL, NULL, NULL))
-    {
-        // TODO
-    }
+    k_ghost_io_register_interface("keymap", ignis_keymap_host_interface_callback, NULL, NULL);
 }
-void ignis_keymap_register_callback(const ignis_keymap_callback_t callback) { (void)callback; }
+
+void ignis_keymap_register_callback(const ignis_keymap_callback_t callback) { ignis_keymap_ctx.generic_ctx.callback = callback; }
 
 int ignis_keymap_host_interface_callback(const cJSON *input_data_p, void *user_data_p)
 {
     (void)user_data_p;
     int    ret_code  = -1;
-    cJSON *data_item = cJSON_GetObjectItem(input_data_p, "data");
+    const cJSON *data_item = cJSON_GetObjectItem(input_data_p, "data");
     if (data_item)
     {
-        cJSON *key_item = cJSON_GetObjectItem(data_item, "key");
+        const cJSON *key_item = cJSON_GetObjectItem(data_item, "key");
         if (key_item && cJSON_IsString(key_item) && ignis_keymap_ctx.generic_ctx.callback)
         {
-            ignis_keymap_key_t key = ignis_keymap_translate_key_string(key_item->valuestring);
+            const ignis_keymap_key_t key = ignis_keymap_translate_key_string(key_item->valuestring);
             if (IGNIS_KEYMAP_KEY_INVALID != key)
             {
-                ignis_keymap_ctx.generic_ctx.callback(ignis_keymap_translate_key_string(key_item->valuestring));
-                ret_code = 0;
+                ignis_keymap_ctx.generic_ctx.callback(key);
             }
+            ret_code = 0;
         }
     }
     return ret_code;
@@ -54,7 +53,7 @@ int ignis_keymap_host_interface_callback(const cJSON *input_data_p, void *user_d
 
 ignis_keymap_key_t ignis_keymap_translate_key_string(const char *key_string)
 {
-    ignis_keymap_key_t key = IGNIS_KEYMAP_KEY_ESC;
+    ignis_keymap_key_t key;
     switch (key_string[0])
     {
         case '0':
@@ -102,5 +101,6 @@ ignis_keymap_key_t ignis_keymap_translate_key_string(const char *key_string)
             }
             break;
     }
+    printf("Received key: %d\n\r",key);
     return key;
 }

@@ -12,6 +12,7 @@
 #include "gtest/gtest.h"
 #include "ignis_core_priv.h"
 #include "ignis_keymap_mock.h"
+#include "k_osal/thread.h"
 
 /* Macros --------------------------------------------------------------------*/
 /* Typedefs ------------------------------------------------------------------*/

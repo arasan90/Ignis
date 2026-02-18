@@ -6,6 +6,10 @@ set(PRIVATE_LINKS k_osal)
 
 if (IDF_TARGET)
     set(SRC_FOLDER src/${IDF_TARGET})
+    set(PRIVATE_LINKS
+            ${PRIVATE_LINKS}
+            k_hal
+    )
 else ()
     set(SRC_FOLDER src/host)
     set(PRIVATE_LINKS ${PRIVATE_LINKS} k_ghost_io)

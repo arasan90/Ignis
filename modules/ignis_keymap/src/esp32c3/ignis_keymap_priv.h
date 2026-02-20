@@ -37,6 +37,24 @@ typedef struct ignis_keymap_ctx_s
  */
 void ignis_keymap_thread_function(void *param);
 
+/**
+ * @brief Identifies the button pressed on the keymap based on the provided data.
+ * @param data Array containing the state of the row and column ports for the keymap.
+ */
+void ignis_keymap_find_button(uint8_t data[2]);
+
+/**
+ * @brief Translates a character representing a key into its corresponding keymap-specific key type.
+ * @param key The character representing the key to be translated.
+ * @return The keymap-specific key type corresponding to the input character.
+ */
+ignis_keymap_key_t ignis_keymap_translate_key(char key);
+
+/**
+ * @brief Resets the state of the keymap module.
+ */
+void ignis_keymap_reset_state(void);
+
 #ifdef __cplusplus
 }
 #endif

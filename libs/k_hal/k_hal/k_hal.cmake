@@ -6,6 +6,9 @@ set(K_HAL_PRIVATE_LINKS)
 
 function(create_mock_library)
     add_library(k_hal_mock ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/mock/k_hal_i2c_master_mock.c)
-    target_include_directories(k_hal_mock PUBLIC ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include)
+    target_include_directories(k_hal_mock PUBLIC
+            ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include
+            ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/mock
+    )
     target_link_libraries(k_hal_mock PUBLIC fff)
 endfunction()

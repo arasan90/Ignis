@@ -75,7 +75,3 @@ void ignis_keymap_thread_function(void *param)
         k_osal_thread_sleep(100);
     }
 }
-
-int ignis_keymap_pcf8575_get_status(uint8_t status[2]) { return k_hal_i2c_master_read(ignis_keymap_ctx.i2c_handle, status, 2); }
-
-int ignis_keymap_pcf8575_set_status(const uint8_t status[2]) { return k_hal_i2c_master_write(ignis_keymap_ctx.i2c_handle, status, 2); }

@@ -37,20 +37,6 @@ typedef struct ignis_keymap_ctx_s
  */
 void ignis_keymap_thread_function(void *param);
 
-/**
- * @brief Retrieves the status from the PCF8575 keymap module.
- * @param status An array of two uint8_t elements to store the retrieved status.
- * @return Returns 0 on success or -1 on failure.
- */
-int ignis_keymap_pcf8575_get_status(uint8_t status[2]);
-
-/**
- * @brief Sets the status for the PCF8575 keymap module
- * @param status Array of 2 bytes representing the desired status
- * @return Returns 0 on success or -1 on failure.
- */
-int ignis_keymap_pcf8575_set_status(const uint8_t status[2]);
-
 #ifdef __cplusplus
 }
 #endif

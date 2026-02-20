@@ -1,15 +1,17 @@
 /**
  ********************************************************************************
- * @file    thread.c
+ * @file    mutex.c
  * @author  Massimiliano Ianniello
- * @date    28/01/26
+ * @date    20/02/26
  ********************************************************************************
  */
 /* Includes ------------------------------------------------------------------*/
-#include "k_osal/thread.h"
+#include "k_osal/mutex.h"
+
+#include <stdlib.h>
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include "freertos/semphr.h"
 
 /* Macros --------------------------------------------------------------------*/
 /* Typedefs ------------------------------------------------------------------*/
@@ -17,10 +19,17 @@
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Definitions ------------------------------------------------------*/
-int k_osal_thread_create(k_osal_thread_t *const thread_handle, const char *const thread_name, const k_osal_thread_priority_t priority, const size_t stack_size,
-                         const k_osal_thread_func_t thread_func, void *const param)
+int k_osal_mutex_create(k_osal_mutex_t *const mutex_handle)
 {
-    const UBaseType_t freeRTOS_priority = (configMAX_PRIORITIES / 3) * ((uint8_t)priority + 1);
-    return pdPASS == xTaskCreate(thread_func, thread_name, stack_size, param, freeRTOS_priority, thread_handle->thread_handle) ? 0 : -1;
+    int ret_code = -1;
+    if (mutex_handle)
+    {
+        mutex_handle->mutex_handle = xSemaphoreCreateRecursiveMutex();
+        ret_code                   = NULL != mutex_handle->mutex_handle ? 0 : -1;
+    }
+    return ret_code;
 }
-void k_osal_thread_sleep(const size_t timeout_ms) { vTaskDelay(timeout_ms / portTICK_PERIOD_MS); }
+
+void k_osal_mutex_lock(const k_osal_mutex_t mutex_handle) { xSemaphoreTakeRecursive(mutex_handle.mutex_handle, portMAX_DELAY); }
+
+void k_osal_mutex_unlock(const k_osal_mutex_t mutex_handle) { xSemaphoreGiveRecursive(mutex_handle.mutex_handle); }

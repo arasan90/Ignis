@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #include "ignis_keymap_priv.h"
+#include "ignis_pcf8575.h"
 #include "k_hal/k_hal_i2c_master.h"
 #include "k_osal/thread.h"
 
@@ -34,8 +35,6 @@
 /* Typedefs ------------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
 /* Constants -----------------------------------------------------------------*/
-#define IGNIS_KEYMAP_I2C_ADDRESS (0x20)
-
 /* Variables -----------------------------------------------------------------*/
 ignis_keymap_ctx_t ignis_keymap_ctx = {0};
 
@@ -50,34 +49,33 @@ void ignis_keymap_thread_function(void *param)
 {
     (void)param;
     k_hal_i2c_master_init();
-    /* Address is 32 */
-    k_hal_i2c_master_device_handle_t i2c_handle = {0};
-    if (0 == k_hal_i2c_master_add_device(&i2c_handle, IGNIS_KEYMAP_I2C_ADDRESS, 10000))
+    uint8_t ready                        = 1;
+    uint8_t write_data[2]                = {0};
+    write_data[IGNIS_KEYMAP_ROW_PORT]    = 0xFF;
+    write_data[IGNIS_KEYMAP_COLUMN_PORT] = ~IGNIS_KEYMAP_COLUMNS_BITS;
+    ignis_pcf8575_set_status(write_data);
+    //  ReSharper disable once CppDFAEndlessLoop
+    while (1)
     {
-        uint8_t ready                        = 1;
-        uint8_t write_data[2]                = {0};
-        write_data[IGNIS_KEYMAP_ROW_PORT]    = 0xFF;
-        write_data[IGNIS_KEYMAP_COLUMN_PORT] = ~IGNIS_KEYMAP_COLUMNS_BITS;
-        k_hal_i2c_master_write(i2c_handle, write_data, 2);
-        // ReSharper disable once CppDFAEndlessLoop
-        while (1)
+        uint8_t data[2] = {0};
+        ignis_pcf8575_get_status(data);
+        if ((data[IGNIS_KEYMAP_ROW_PORT] & IGNIS_KEYMAP_ROWS_BITS) != IGNIS_KEYMAP_ROWS_BITS)
         {
-            uint8_t data[2] = {0};
-            k_hal_i2c_master_read(i2c_handle, data, 2);
-            if ((data[IGNIS_KEYMAP_ROW_PORT] & IGNIS_KEYMAP_ROWS_BITS) != IGNIS_KEYMAP_ROWS_BITS)
+            if (ready)
             {
-                if (ready)
-                {
-                    printf("BUTTON PRESSED\n\r");
-                    ready = 0;
-                }
+                printf("BUTTON PRESSED\n\r");
+                ready = 0;
             }
-            else
-            {
-                ready = 1;
-            }
-            // printf("Port status is %X:%X\n\r", data[0], data[1]);
-            k_osal_thread_sleep(100);
         }
+        else
+        {
+            ready = 1;
+        }
+        // printf("Port status is %X:%X\n\r", data[0], data[1]);
+        k_osal_thread_sleep(100);
     }
 }
+
+int ignis_keymap_pcf8575_get_status(uint8_t status[2]) { return k_hal_i2c_master_read(ignis_keymap_ctx.i2c_handle, status, 2); }
+
+int ignis_keymap_pcf8575_set_status(const uint8_t status[2]) { return k_hal_i2c_master_write(ignis_keymap_ctx.i2c_handle, status, 2); }

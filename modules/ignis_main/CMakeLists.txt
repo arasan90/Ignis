@@ -9,7 +9,10 @@ set(PRIVATE_LIBS
 if (IDF_TARGET)
     idf_component_register(SRCS src/esp32c3/ignis_main.c src/ignis_main.c)
     set(MAIN_TARGET ${COMPONENT_LIB})
-    set(PRIVATE_LIBS ${PRIVATE_LIBS})
+    set(PRIVATE_LIBS
+            ${PRIVATE_LIBS}
+            ignis_pcf8575
+    )
 else ()
     project(Ignis)
     set(CMAKE_BUILD_TYPE Debug)

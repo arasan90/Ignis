@@ -1,24 +1,31 @@
 /**
  ********************************************************************************
- * @file    ignis_main.c
+ * @file    mutex_priv.h
  * @author  Massimiliano Ianniello
- * @date    28/01/26
+ * @date    20/02/26
  ********************************************************************************
  */
-/* Includes ------------------------------------------------------------------*/
-#include "../ignis_main.h"
+#ifndef MUTEX_PRIV_H
+#define MUTEX_PRIV_H
 
-#include "ignis_pcf8575.h"
+/* Includes ------------------------------------------------------------------*/
+#include "pthread.h"
 
 /* Macros --------------------------------------------------------------------*/
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 /* Typedefs ------------------------------------------------------------------*/
-/* Function Declarations -----------------------------------------------------*/
+typedef struct k_osal_mutex_context_s
+{
+    pthread_mutex_t mutex;
+} k_osal_mutex_context_t;
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
-/* Function Definitions ------------------------------------------------------*/
+/* Function Declarations -----------------------------------------------------*/
 
-int app_main(void)
-{
-    ignis_pcf8575_init();
-    return ignis_main();
+#ifdef __cplusplus
 }
+#endif
+#endif  // MUTEX_PRIV_H

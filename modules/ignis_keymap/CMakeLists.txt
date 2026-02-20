@@ -9,6 +9,7 @@ if (IDF_TARGET)
     set(PRIVATE_LINKS
             ${PRIVATE_LINKS}
             k_hal
+            ignis_pcf8575
     )
 else ()
     set(SRC_FOLDER src/host)

@@ -37,6 +37,22 @@ void ignis_pcf8575_init(void)
     }
 }
 
+void ignis_pcf8575_get_pin_level(ignis_pcf8575_pin_level_t *pin_levels_p, size_t pin_levels_size)
+{
+    uint8_t status[2] = {0};
+    k_osal_mutex_lock(ignis_pcf8575_ctx.mutex_handle);
+    if (0 == k_hal_i2c_master_read(ignis_pcf8575_ctx.i2c_handle, status, 2))
+    {
+        for (size_t i = 0; i < pin_levels_size; i++)
+        {
+            const uint8_t index   = pin_levels_p[i].pin / 8;
+            const uint8_t bit     = pin_levels_p[i].pin % 8;
+            pin_levels_p[i].level = (status[index] & (1 << bit)) ? 1 : 0;
+        }
+    }
+    k_osal_mutex_unlock(ignis_pcf8575_ctx.mutex_handle);
+}
+
 int ignis_pcf8575_get_status(uint8_t status[2])
 {
     int ret_code = -1;
@@ -49,15 +65,28 @@ int ignis_pcf8575_get_status(uint8_t status[2])
     return ret_code;
 }
 
-int ignis_pcf8575_set_status(const uint8_t status[2])
+void ignis_pcf8575_set_pin_level(const ignis_pcf8575_pin_level_t *pin_levels_p, const size_t pin_levels_size)
 {
-    int ret_code = -1;
     k_osal_mutex_lock(ignis_pcf8575_ctx.mutex_handle);
-    if (0 == k_hal_i2c_master_write(ignis_pcf8575_ctx.i2c_handle, status, 2))
+
+    for (size_t i = 0; i < pin_levels_size; i++)
     {
-        memcpy(ignis_pcf8575_ctx.pins_state, status, 2);
-        ret_code = 0;
+        const uint8_t index        = pin_levels_p[i].pin / 8;
+        const uint8_t bit          = pin_levels_p[i].pin % 8;
+        uint8_t       new_state[2] = {0};
+        memcpy(new_state, ignis_pcf8575_ctx.pins_state, 2);
+        if (pin_levels_p[i].level)
+        {
+            new_state[index] |= (1 << bit);
+        }
+        else
+        {
+            new_state[index] &= ~(1 << bit);
+        }
+        if (0 == k_hal_i2c_master_write(ignis_pcf8575_ctx.i2c_handle, new_state, 2))
+        {
+            memcpy(ignis_pcf8575_ctx.pins_state, new_state, 2);
+        }
     }
     k_osal_mutex_unlock(ignis_pcf8575_ctx.mutex_handle);
-    return ret_code;
 }

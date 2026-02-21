@@ -17,21 +17,13 @@
 #include "k_osal/thread.h"
 
 /* Macros --------------------------------------------------------------------*/
-#define IGNIS_KEYMAP_COLUMN_1_BIT (1 << 0)
-#define IGNIS_KEYMAP_COLUMN_2_BIT (1 << 1)
-#define IGNIS_KEYMAP_COLUMN_3_BIT (1 << 2)
-
-#define IGNIS_KEYMAP_COLUMNS_BITS (IGNIS_KEYMAP_COLUMN_1_BIT | IGNIS_KEYMAP_COLUMN_2_BIT | IGNIS_KEYMAP_COLUMN_3_BIT)
-
-#define IGNIS_KEYMAP_ROW_1_BIT (1 << 0)
-#define IGNIS_KEYMAP_ROW_2_BIT (1 << 1)
-#define IGNIS_KEYMAP_ROW_3_BIT (1 << 2)
-#define IGNIS_KEYMAP_ROW_4_BIT (1 << 3)
-
-#define IGNIS_KEYMAP_ROWS_BITS (IGNIS_KEYMAP_ROW_1_BIT | IGNIS_KEYMAP_ROW_2_BIT | IGNIS_KEYMAP_ROW_3_BIT | IGNIS_KEYMAP_ROW_4_BIT)
-
-#define IGNIS_KEYMAP_ROW_PORT    (0)
-#define IGNIS_KEYMAP_COLUMN_PORT (1)
+#define IGNIS_KEYMAP_ROW_1_PIN    (0)
+#define IGNIS_KEYMAP_ROW_2_PIN    (1)
+#define IGNIS_KEYMAP_ROW_3_PIN    (2)
+#define IGNIS_KEYMAP_ROW_4_PIN    (3)
+#define IGNIS_KEYMAP_COLUMN_1_PIN (8)
+#define IGNIS_KEYMAP_COLUMN_2_PIN (9)
+#define IGNIS_KEYMAP_COLUMN_3_PIN (10)
 
 /* Typedefs ------------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
@@ -55,79 +47,60 @@ void ignis_keymap_thread_function(void *param)
     //  ReSharper disable once CppDFAEndlessLoop
     while (1)
     {
-        uint8_t data[2] = {0};
-        ignis_pcf8575_get_status(data);
-        if ((data[IGNIS_KEYMAP_ROW_PORT] & IGNIS_KEYMAP_ROWS_BITS) != IGNIS_KEYMAP_ROWS_BITS)
-        {
-            if (ready)
-            {
-                ignis_keymap_find_button(data);
-                ready = 0;
-            }
-        }
-        else
+        ignis_pcf8575_pin_level_t pin_data[] = {{IGNIS_KEYMAP_ROW_1_PIN, -1},
+                                                {IGNIS_KEYMAP_ROW_2_PIN, -1},
+                                                {IGNIS_KEYMAP_ROW_3_PIN, -1},
+                                                {IGNIS_KEYMAP_ROW_4_PIN, -1}};
+        ignis_pcf8575_get_pin_level(pin_data, sizeof(pin_data) / sizeof(ignis_pcf8575_pin_level_t));
+        if (1 == pin_data[0].level && 1 == pin_data[1].level && 1 == pin_data[2].level && 1 == pin_data[3].level && !ready)
         {
             ready = 1;
+        }
+        else if (ready)
+        {
+            for (int i = 0; i < sizeof(pin_data) / sizeof(ignis_pcf8575_pin_level_t); i++)
+            {
+                if (0 == pin_data[i].level)
+                {
+                    ready = 0;
+                    ignis_keymap_find_button(pin_data[i].pin);
+                    break;
+                }
+            }
         }
         k_osal_thread_sleep(100);
     }
 }
 
-void ignis_keymap_find_button(uint8_t data[2])
+void ignis_keymap_find_button(const uint8_t row_pin)
 {
-    const char keys[4][3] = {{'1', '2', '3'}, {'4', '5', '6'}, {'7', '8', '9'}, {'*', '0', '#'}};
-    uint8_t    found      = 0;
-    uint8_t    row, column = 0;
-    uint8_t    new_state[2] = {0xFF, 0xFF};
-    if (!(data[IGNIS_KEYMAP_ROW_PORT] & IGNIS_KEYMAP_ROW_1_BIT))
+    uint8_t       found         = 0;
+    uint8_t       column        = 0;
+    const uint8_t column_pins[] = {IGNIS_KEYMAP_COLUMN_1_PIN, IGNIS_KEYMAP_COLUMN_2_PIN, IGNIS_KEYMAP_COLUMN_3_PIN};
+    for (int i = 0; i < sizeof(column_pins) / sizeof(uint8_t); i++)
     {
-        row = 0;
-    }
-    else if (!(data[IGNIS_KEYMAP_ROW_PORT] & IGNIS_KEYMAP_ROW_2_BIT))
-    {
-        row = 1;
-    }
-    else if (!(data[IGNIS_KEYMAP_ROW_PORT] & IGNIS_KEYMAP_ROW_3_BIT))
-    {
-        row = 2;
-    }
-    else
-    {
-        row = 3;
-    }
-    new_state[IGNIS_KEYMAP_COLUMN_PORT] = ~IGNIS_KEYMAP_COLUMNS_BITS | IGNIS_KEYMAP_COLUMN_1_BIT;
-    ignis_pcf8575_set_status(new_state);
-    ignis_pcf8575_get_status(data);
-    if (data[IGNIS_KEYMAP_ROW_PORT] & 1 << row)
-    {
-        column = 0;
-        found  = 1;
-    }
-    if (!found)
-    {
-        new_state[IGNIS_KEYMAP_COLUMN_PORT] = ~IGNIS_KEYMAP_COLUMNS_BITS | IGNIS_KEYMAP_COLUMN_2_BIT;
-        ignis_pcf8575_set_status(new_state);
-        ignis_pcf8575_get_status(data);
-        if (data[IGNIS_KEYMAP_ROW_PORT] & 1 << row)
+        ignis_pcf8575_pin_level_t pin_level = {column_pins[i], 1};
+        ignis_pcf8575_set_pin_level(&pin_level, 1);
+        pin_level.pin   = row_pin;
+        pin_level.level = -1;
+        ignis_pcf8575_get_pin_level(&pin_level, 1);
+        if (1 == pin_level.level)
         {
-            column = 1;
+            column = i;
             found  = 1;
+            break;
         }
-    }
-    if (!found)
-    {
-        new_state[IGNIS_KEYMAP_COLUMN_PORT] = ~IGNIS_KEYMAP_COLUMNS_BITS | IGNIS_KEYMAP_COLUMN_3_BIT;
-        ignis_pcf8575_set_status(new_state);
-        ignis_pcf8575_get_status(data);
-        if (data[IGNIS_KEYMAP_ROW_PORT] & 1 << row)
+        else
         {
-            column = 2;
-            found  = 1;
+            pin_level.pin   = column_pins[i];
+            pin_level.level = 0;
+            ignis_pcf8575_set_pin_level(&pin_level, 1);
         }
     }
     if (found)
     {
-        ignis_keymap_ctx.generic_ctx.callback(ignis_keymap_translate_key(keys[row][column]));
+        const char keys[4][3] = {{'1', '2', '3'}, {'4', '5', '6'}, {'7', '8', '9'}, {'*', '0', '#'}};
+        ignis_keymap_ctx.generic_ctx.callback(ignis_keymap_translate_key(keys[row_pin][column]));
     }
     ignis_keymap_reset_state();
 }
@@ -182,7 +155,6 @@ ignis_keymap_key_t ignis_keymap_translate_key(char key)
 
 void ignis_keymap_reset_state(void)
 {
-    uint8_t state[2]                = {0xFF, 0xFF};
-    state[IGNIS_KEYMAP_COLUMN_PORT] = ~IGNIS_KEYMAP_COLUMNS_BITS;
-    ignis_pcf8575_set_status(state);
+    const ignis_pcf8575_pin_level_t pin_data[] = {{IGNIS_KEYMAP_COLUMN_1_PIN, 0}, {IGNIS_KEYMAP_COLUMN_2_PIN, 0}, {IGNIS_KEYMAP_COLUMN_3_PIN, 0}};
+    ignis_pcf8575_set_pin_level(pin_data, sizeof(pin_data) / sizeof(ignis_pcf8575_pin_level_t));
 }

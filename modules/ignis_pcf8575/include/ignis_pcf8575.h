@@ -29,6 +29,12 @@ typedef struct ignis_pcf8575_ctx_s
     bool                             initialized;
 } ignis_pcf8575_ctx_t;
 
+typedef struct ignis_pcf8575_pin_level_s
+{
+    uint8_t pin;
+    int8_t  level;
+} ignis_pcf8575_pin_level_t;
+
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
@@ -41,28 +47,26 @@ typedef struct ignis_pcf8575_ctx_s
 void ignis_pcf8575_init(void);
 
 /**
- * Retrieves the status from the PCF8575 device.
+ * @brief Retrieves the pin levels from the PCF8575 I/O expander.
  *
- * This function reads the current status of the PCF8575 I/O expander
- * and writes the retrieved data to the provided status array.
+ * This function reads the levels of the pins from the PCF8575 and populates
+ * the provided buffer with pin level information.
  *
- * @param status An array of size 2 where the retrieved status will be stored.
- *               Each byte in the array represents the status of 8 pins.
- * @return An integer indicating the operation result.
- *         A return value of 0 indicates success. -1 indicates failure.
+ * @param pin_levels_p Pointer to a buffer where the pin levels will be stored.
+ * @param pin_levels_size Size of the buffer (number of elements) pointed to
+ *                        by pin_levels_p.
  */
-int ignis_pcf8575_get_status(uint8_t status[2]);
+void ignis_pcf8575_get_pin_level(ignis_pcf8575_pin_level_t *pin_levels_p, size_t pin_levels_size);
 
 /**
- * Updates the status of the PCF8575 I/O expander.
+ * @brief Sets the pin levels for the PCF8575 I/O expander.
  *
- * @param status An array of two 8-bit unsigned values representing the
- *               desired status for each of the 16 pins of the PCF8575.
- *               Each bit in the array corresponds to a pin, with 1 indicating
- *               a high state and 0 indicating a low state.
- * @return An integer status code where 0 indicates success, and a -1 indicates failure.
+ * This function updates the state of the pins on the PCF8575 I/O expander based on the provided pin levels.
+ *
+ * @param pin_levels_p Pointer to an array containing the desired pin levels.
+ * @param pin_levels_size The number of entries in the pin levels array.
  */
-int ignis_pcf8575_set_status(const uint8_t status[2]);
+void ignis_pcf8575_set_pin_level(const ignis_pcf8575_pin_level_t *pin_levels_p, size_t pin_levels_size);
 #ifdef __cplusplus
 }
 #endif

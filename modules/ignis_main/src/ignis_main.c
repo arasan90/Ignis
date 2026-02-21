@@ -8,6 +8,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "ignis_main.h"
 
+#include "ignis_keymap.h"
 #include "ignis_core.h"
 
 /* Macros --------------------------------------------------------------------*/
@@ -19,5 +20,6 @@
 int ignis_main(void)
 {
     ignis_core_start();
+    ignis_keymap_start();
     return 0;
 }

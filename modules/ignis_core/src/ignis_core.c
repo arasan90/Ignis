@@ -1,6 +1,6 @@
 /**
  ********************************************************************************
- * @file    ignis_core.cpp
+ * @file    ignis_core.c
  * @author  Massimiliano Ianniello
  * @date    28/01/26
  ********************************************************************************
@@ -32,7 +32,7 @@ void ignis_core_start(void)
 void ignis_core_thread_function(void *param)
 {
     const ignis_core_context_t *const ignis_core_context_p = param;
-
+    ignis_keymap_register_callback(ignis_core_keymap_callback);
     // ReSharper disable once CppDFAEndlessLoop
     while (1)
     {
@@ -81,6 +81,8 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
             break;
         case IGNIS_KEYMAP_KEY_ESC:
             esc_pressed = 1;
+            break;
+        default:
             break;
     }
     switch (ignis_core_context.state)

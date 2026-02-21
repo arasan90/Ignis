@@ -1,18 +1,31 @@
 /**
  ********************************************************************************
- * @file    ignis_keymap_mock.c
+ * @file    ignis_keymap_generic_priv.h
  * @author  Massimiliano Ianniello
- * @date    29/01/26
+ * @date    05/02/26
  ********************************************************************************
  */
-#include "ignis_keymap_mock.h"
+#ifndef IGNIS_KEYMAP_GENERIC_PRIV_H
+#define IGNIS_KEYMAP_GENERIC_PRIV_H
 
 /* Includes ------------------------------------------------------------------*/
+#include "ignis_keymap.h"
+
 /* Macros --------------------------------------------------------------------*/
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 /* Typedefs ------------------------------------------------------------------*/
-/* Function Declarations -----------------------------------------------------*/
+typedef struct ignis_keymap_ctx_generic_s
+{
+    ignis_keymap_callback_t callback;
+} ignis_keymap_ctx_generic_t;
+
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
-/* Function Definitions ------------------------------------------------------*/
-DEFINE_FAKE_VOID_FUNC(ignis_keymap_start)
-DEFINE_FAKE_VOID_FUNC(ignis_keymap_register_callback, ignis_keymap_callback_t)
+/* Function Declarations -----------------------------------------------------*/
+#ifdef __cplusplus
+}
+#endif
+#endif  // IGNIS_KEYMAP_GENERIC_PRIV_H

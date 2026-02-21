@@ -1,15 +1,17 @@
 /**
  ********************************************************************************
- * @file    ignis_main.c
+ * @file    mutex.c
  * @author  Massimiliano Ianniello
- * @date    28/01/26
+ * @date    20/02/26
  ********************************************************************************
  */
 /* Includes ------------------------------------------------------------------*/
-#include "ignis_main.h"
+#include "k_osal/mutex.h"
 
-#include "k_ghost_io.h"
-#include "k_osal/thread.h"
+#include <stdlib.h>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 
 /* Macros --------------------------------------------------------------------*/
 /* Typedefs ------------------------------------------------------------------*/
@@ -17,12 +19,17 @@
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Definitions ------------------------------------------------------*/
-int main(void)
+int k_osal_mutex_create(k_osal_mutex_t *const mutex_handle)
 {
-    k_ghost_io_init();
-    ignis_main();
-    while (1)
+    int ret_code = -1;
+    if (mutex_handle)
     {
-        k_osal_thread_sleep(99999999999);
+        mutex_handle->mutex_handle = xSemaphoreCreateRecursiveMutex();
+        ret_code                   = NULL != mutex_handle->mutex_handle ? 0 : -1;
     }
+    return ret_code;
 }
+
+void k_osal_mutex_lock(const k_osal_mutex_t mutex_handle) { xSemaphoreTakeRecursive(mutex_handle.mutex_handle, portMAX_DELAY); }
+
+void k_osal_mutex_unlock(const k_osal_mutex_t mutex_handle) { xSemaphoreGiveRecursive(mutex_handle.mutex_handle); }

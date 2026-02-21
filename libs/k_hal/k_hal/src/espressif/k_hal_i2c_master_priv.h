@@ -1,28 +1,35 @@
 /**
  ********************************************************************************
- * @file    ignis_main.c
+ * @file    k_hal_i2c_master_priv.h
  * @author  Massimiliano Ianniello
- * @date    28/01/26
+ * @date    18/02/26
  ********************************************************************************
  */
-/* Includes ------------------------------------------------------------------*/
-#include "ignis_main.h"
+#ifndef K_HAL_I2C_MASTER_PRIV_H
+#define K_HAL_I2C_MASTER_PRIV_H
 
-#include "k_ghost_io.h"
-#include "k_osal/thread.h"
+/* Includes ------------------------------------------------------------------*/
+#include <stdbool.h>
+
+#include "driver/i2c_master.h"
 
 /* Macros --------------------------------------------------------------------*/
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 /* Typedefs ------------------------------------------------------------------*/
-/* Function Declarations -----------------------------------------------------*/
+typedef struct k_hal_i2c_master_ctx_s
+{
+    bool                    initialized;
+    i2c_master_bus_handle_t bus_handle;
+} k_hal_i2c_master_ctx_t;
+
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
-/* Function Definitions ------------------------------------------------------*/
-int main(void)
-{
-    k_ghost_io_init();
-    ignis_main();
-    while (1)
-    {
-        k_osal_thread_sleep(99999999999);
-    }
+/* Function Declarations -----------------------------------------------------*/
+
+#ifdef __cplusplus
 }
+#endif
+#endif  // K_HAL_I2C_MASTER_PRIV_H

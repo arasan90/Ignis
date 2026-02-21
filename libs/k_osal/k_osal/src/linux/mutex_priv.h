@@ -1,28 +1,31 @@
 /**
  ********************************************************************************
- * @file    ignis_main.c
+ * @file    mutex_priv.h
  * @author  Massimiliano Ianniello
- * @date    28/01/26
+ * @date    20/02/26
  ********************************************************************************
  */
-/* Includes ------------------------------------------------------------------*/
-#include "ignis_main.h"
+#ifndef MUTEX_PRIV_H
+#define MUTEX_PRIV_H
 
-#include "k_ghost_io.h"
-#include "k_osal/thread.h"
+/* Includes ------------------------------------------------------------------*/
+#include "pthread.h"
 
 /* Macros --------------------------------------------------------------------*/
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 /* Typedefs ------------------------------------------------------------------*/
-/* Function Declarations -----------------------------------------------------*/
+typedef struct k_osal_mutex_context_s
+{
+    pthread_mutex_t mutex;
+} k_osal_mutex_context_t;
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
-/* Function Definitions ------------------------------------------------------*/
-int main(void)
-{
-    k_ghost_io_init();
-    ignis_main();
-    while (1)
-    {
-        k_osal_thread_sleep(99999999999);
-    }
+/* Function Declarations -----------------------------------------------------*/
+
+#ifdef __cplusplus
 }
+#endif
+#endif  // MUTEX_PRIV_H

@@ -12,6 +12,7 @@
 #include "gtest/gtest.h"
 #include "ignis_core_priv.h"
 #include "ignis_keymap_mock.h"
+#include "k_osal/thread.h"
 
 /* Macros --------------------------------------------------------------------*/
 /* Typedefs ------------------------------------------------------------------*/
@@ -24,6 +25,7 @@ DEFINE_FFF_GLOBALS
 FAKE_VALUE_FUNC(int, k_osal_thread_create, k_osal_thread_t *, const char *, k_osal_thread_priority_t, size_t, k_osal_thread_func_t, void *)
 FAKE_VOID_FUNC(k_osal_thread_sleep, size_t)
 
+#include <stddef.h>
 class IgnisCoreTest : public ::testing::Test
 {
    protected:

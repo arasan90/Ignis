@@ -1,9 +1,9 @@
-project(ignis_core_test VERSION 1.0 LANGUAGES C CXX)
+project(ignis_pcf8575_test VERSION 1.0 LANGUAGES C CXX)
 include(GoogleTest)
 
 set(SOURCES
-        ignis_core_test.cpp
-        ../src/ignis_core.c
+        ignis_pcf8575_test.cpp
+        ../src/ignis_pcf8575.c
 )
 
 set(PUBLIC_INCLUDES
@@ -15,13 +15,17 @@ set(PRIVATE_INCLUDES
 )
 
 set(PRIVATE_LINKS
-        ignis_keymap_mock
+        k_hal_mock
+        k_osal_mock
         GTest::gtest_main
+)
+
+set(PUBLIC_LINKS
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PUBLIC_INCLUDES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PRIVATE_INCLUDES})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PRIVATE_LINKS})
-target_link_libraries(${PROJECT_NAME} PRIVATE k_osal)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${PUBLIC_LINKS})
 gtest_discover_tests(${PROJECT_NAME})

@@ -1,16 +1,16 @@
 /**
  ********************************************************************************
- * @file    ignis_keymap.h
+ * @file    thread_priv.h
  * @author  Massimiliano Ianniello
- * @date    29/01/26
+ * @date    28/01/26
  ********************************************************************************
  */
-#ifndef IGNIS_KEYMAP_MOCK_H
-#define IGNIS_KEYMAP_MOCK_H
+#ifndef THREAD_PRIV_H
+#define THREAD_PRIV_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "fff.h"
-#include "ignis_keymap.h"
+#include "k_osal/thread.h"
+#include "pthread.h"
 
 /* Macros --------------------------------------------------------------------*/
 #ifdef __cplusplus
@@ -18,18 +18,21 @@ extern "C"
 {
 #endif
 /* Typedefs ------------------------------------------------------------------*/
+typedef struct k_osal_thread_context_s
+{
+    k_osal_thread_func_t     thread_func;
+    pthread_t                thread_handle;
+    void                    *param;
+    const char              *thread_name;
+    k_osal_thread_priority_t thread_priority;
+} k_osal_thread_context_t;
+
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
-DECLARE_FAKE_VOID_FUNC(ignis_keymap_start)
-DECLARE_FAKE_VOID_FUNC(ignis_keymap_register_callback, ignis_keymap_callback_t)
+void *k_osal_thread_func_generic(void *param);
 
-inline void ignis_keymap_mock_reset_fakes(void)
-{
-    RESET_FAKE(ignis_keymap_register_callback);
-    RESET_FAKE(ignis_keymap_start);
-}
 #ifdef __cplusplus
 }
 #endif
-#endif  // IGNIS_KEYMAP_MOCK_H
+#endif  // THREAD_PRIV_H

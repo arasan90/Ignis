@@ -1,16 +1,17 @@
 /**
  ********************************************************************************
- * @file    ignis_keymap.h
+ * @file    k_osal_mock.h
  * @author  Massimiliano Ianniello
- * @date    29/01/26
+ * @date    20/02/26
  ********************************************************************************
  */
-#ifndef IGNIS_KEYMAP_MOCK_H
-#define IGNIS_KEYMAP_MOCK_H
+#ifndef K_OSAL_MOCK_H
+#define K_OSAL_MOCK_H
 
 /* Includes ------------------------------------------------------------------*/
 #include "fff.h"
-#include "ignis_keymap.h"
+#include "k_osal/mutex.h"
+#include "k_osal/thread.h"
 
 /* Macros --------------------------------------------------------------------*/
 #ifdef __cplusplus
@@ -21,15 +22,22 @@ extern "C"
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
-DECLARE_FAKE_VOID_FUNC(ignis_keymap_start)
-DECLARE_FAKE_VOID_FUNC(ignis_keymap_register_callback, ignis_keymap_callback_t)
+DECLARE_FAKE_VALUE_FUNC(int, k_osal_thread_create, k_osal_thread_t *, const char *, k_osal_thread_priority_t,  size_t,  k_osal_thread_func_t, void *)
+DECLARE_FAKE_VOID_FUNC(k_osal_thread_sleep, size_t)
+DECLARE_FAKE_VALUE_FUNC(int, k_osal_mutex_create, k_osal_mutex_t *)
+DECLARE_FAKE_VOID_FUNC(k_osal_mutex_lock, k_osal_mutex_t )
+DECLARE_FAKE_VOID_FUNC(k_osal_mutex_unlock, k_osal_mutex_t )
 
-inline void ignis_keymap_mock_reset_fakes(void)
+inline void k_osal_mock_reset(void)
 {
-    RESET_FAKE(ignis_keymap_register_callback);
-    RESET_FAKE(ignis_keymap_start);
+    RESET_FAKE(k_osal_thread_create);
+    RESET_FAKE(k_osal_thread_sleep);
+    RESET_FAKE(k_osal_mutex_create);
+    RESET_FAKE(k_osal_mutex_lock);
+    RESET_FAKE(k_osal_mutex_unlock);
 }
+
 #ifdef __cplusplus
 }
 #endif
-#endif  // IGNIS_KEYMAP_MOCK_H
+#endif  // K_OSAL_MOCK_H

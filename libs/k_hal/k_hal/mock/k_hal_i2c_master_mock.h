@@ -1,16 +1,16 @@
 /**
  ********************************************************************************
- * @file    ignis_keymap.h
+ * @file    k_hal_i2c_master_mock.h
  * @author  Massimiliano Ianniello
- * @date    29/01/26
+ * @date    19/02/26
  ********************************************************************************
  */
-#ifndef IGNIS_KEYMAP_MOCK_H
-#define IGNIS_KEYMAP_MOCK_H
+#ifndef K_HAL_I2C_MASTER_MOCK_H
+#define K_HAL_I2C_MASTER_MOCK_H
 
 /* Includes ------------------------------------------------------------------*/
 #include "fff.h"
-#include "ignis_keymap.h"
+#include "k_hal/k_hal_i2c_master.h"
 
 /* Macros --------------------------------------------------------------------*/
 #ifdef __cplusplus
@@ -21,15 +21,20 @@ extern "C"
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
-DECLARE_FAKE_VOID_FUNC(ignis_keymap_start)
-DECLARE_FAKE_VOID_FUNC(ignis_keymap_register_callback, ignis_keymap_callback_t)
+DECLARE_FAKE_VOID_FUNC(k_hal_i2c_master_init)
+DECLARE_FAKE_VALUE_FUNC(int, k_hal_i2c_master_add_device, k_hal_i2c_master_device_handle_t *, uint8_t, size_t)
+DECLARE_FAKE_VALUE_FUNC(int, k_hal_i2c_master_read, k_hal_i2c_master_device_handle_t, uint8_t *, size_t)
+DECLARE_FAKE_VALUE_FUNC(int, k_hal_i2c_master_write, k_hal_i2c_master_device_handle_t, const uint8_t *, size_t)
 
-inline void ignis_keymap_mock_reset_fakes(void)
+inline void k_hal_i2c_master_reset(void)
 {
-    RESET_FAKE(ignis_keymap_register_callback);
-    RESET_FAKE(ignis_keymap_start);
+    RESET_FAKE(k_hal_i2c_master_init);
+    RESET_FAKE(k_hal_i2c_master_add_device);
+    RESET_FAKE(k_hal_i2c_master_read);
+    RESET_FAKE(k_hal_i2c_master_write);
 }
+
 #ifdef __cplusplus
 }
 #endif
-#endif  // IGNIS_KEYMAP_MOCK_H
+#endif  // K_HAL_I2C_MASTER_MOCK_H

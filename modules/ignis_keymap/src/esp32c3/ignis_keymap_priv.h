@@ -38,10 +38,10 @@ typedef struct ignis_keymap_ctx_s
 void ignis_keymap_thread_function(void *param);
 
 /**
- * @brief Identifies the button pressed on the keymap based on the provided data.
- * @param data Array containing the state of the row and column ports for the keymap.
+ * @brief Identifies a button press based on the specified row pin.
+ * @param row_pin The pin corresponding to the row of the key that was activated.
  */
-void ignis_keymap_find_button(uint8_t data[2]);
+void ignis_keymap_find_button(uint8_t row_pin);
 
 /**
  * @brief Translates a character representing a key into its corresponding keymap-specific key type.

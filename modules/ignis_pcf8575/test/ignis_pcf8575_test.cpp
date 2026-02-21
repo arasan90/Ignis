@@ -48,7 +48,43 @@ TEST_F(IgnisPcf8575Test, Initialize)
 TEST_F(IgnisPcf8575Test, SetStatus)
 {
     ignis_pcf8575_init();
-    ignis_pcf8575_set_status((uint8_t[]){0xFF, 0x80});
-    EXPECT_EQ(ignis_pcf8575_ctx.pins_state[0], 0xFF);
-    EXPECT_EQ(ignis_pcf8575_ctx.pins_state[1], 0x80);
+    ignis_pcf8575_set_pin_level((ignis_pcf8575_pin_level_t[]){{0, 0}}, 1);
+    EXPECT_EQ(ignis_pcf8575_ctx.pins_state[0], 0b11111110);
+    EXPECT_EQ(ignis_pcf8575_ctx.pins_state[1], 0b11111111);
+    ignis_pcf8575_set_pin_level((ignis_pcf8575_pin_level_t[]){{0, 1}, {10, 0}, {4, 0}}, 3);
+    EXPECT_EQ(ignis_pcf8575_ctx.pins_state[0], 0b11101111);
+    EXPECT_EQ(ignis_pcf8575_ctx.pins_state[1], 0b11111011);
+}
+
+TEST_F(IgnisPcf8575Test, GetStatus)
+{
+    ignis_pcf8575_init();
+    k_hal_i2c_master_read_fake.custom_fake = [](k_hal_i2c_master_device_handle_t handle, uint8_t *data, size_t size) -> int
+    {
+        if (size >= 2)
+        {
+            data[0] = 0b11001001;
+            data[1] = 0b00110110;
+        }
+        return 0;
+    };
+    ignis_pcf8575_pin_level_t pin_levels[] = {{0, -1}, {1, -1}, {2, -1},  {3, -1},  {4, -1},  {5, -1},  {6, -1},  {7, -1},
+                                              {8, -1}, {9, -1}, {10, -1}, {11, -1}, {12, -1}, {13, -1}, {14, -1}, {15, -1}};
+    ignis_pcf8575_get_pin_level(pin_levels, sizeof(pin_levels) / sizeof(ignis_pcf8575_pin_level_t));
+    EXPECT_EQ(pin_levels[0].level, 1);
+    EXPECT_EQ(pin_levels[1].level, 0);
+    EXPECT_EQ(pin_levels[2].level, 0);
+    EXPECT_EQ(pin_levels[3].level, 1);
+    EXPECT_EQ(pin_levels[4].level, 0);
+    EXPECT_EQ(pin_levels[5].level, 0);
+    EXPECT_EQ(pin_levels[6].level, 1);
+    EXPECT_EQ(pin_levels[7].level, 1);
+    EXPECT_EQ(pin_levels[8].level, 0);
+    EXPECT_EQ(pin_levels[9].level, 1);
+    EXPECT_EQ(pin_levels[10].level, 1);
+    EXPECT_EQ(pin_levels[11].level, 0);
+    EXPECT_EQ(pin_levels[12].level, 1);
+    EXPECT_EQ(pin_levels[13].level, 1);
+    EXPECT_EQ(pin_levels[14].level, 0);
+    EXPECT_EQ(pin_levels[15].level, 0);
 }

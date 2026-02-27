@@ -14,6 +14,8 @@
 extern "C"
 {
 #endif
+
+/* Typedef -------------------------------------------------------------------*/
 /**
  * @brief Represents an OS abstraction layer (OSAL) mutex.
  *

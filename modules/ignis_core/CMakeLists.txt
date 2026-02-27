@@ -15,6 +15,7 @@ set(PRIVATE_INCLUDES
 set(PRIVATE_LINKS
         k_osal
         ignis_keymap
+        ignis_display
 )
 
 add_library(${PROJECT_NAME} ${SOURCES})

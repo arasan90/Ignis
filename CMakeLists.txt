@@ -31,6 +31,7 @@ endif ()
 
 add_subdirectory(modules/ignis_core)
 add_subdirectory(modules/ignis_keymap)
+add_subdirectory(modules/ignis_display)
 add_subdirectory(modules/ignis_pcf8575)
 add_subdirectory(libs/k_osal)
 add_subdirectory(libs/k_hal)

@@ -1,12 +1,12 @@
 /**
  ********************************************************************************
- * @file    ignis_display.h
+ * @file    ignis_display_priv.h
  * @author  Massimiliano Ianniello
- * @date    27/02/26
+ * @date    06/03/26
  ********************************************************************************
  */
-#ifndef IGNIS_DISPLAY_H
-#define IGNIS_DISPLAY_H
+#ifndef IGNIS_DISPLAY_PRIV_H
+#define IGNIS_DISPLAY_PRIV_H
 
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
@@ -17,14 +17,28 @@
 extern "C"
 {
 #endif
+
+#define IGNIS_DISPLAY_PIN_DATA 5
+#define IGNIS_DISPLAY_PIN_CLK  6
+
+#define IGNIS_DISPLAY_CTX_INIT()                    \
+    {                                               \
+        .display_digits = {0xFF, 0xFF, 0xFF, 0xFF}, \
+        .initialized    = false,                    \
+    }
+
 /* Typedefs ------------------------------------------------------------------*/
+typedef struct ignis_display_ctx_s
+{
+    uint8_t display_digits[4];
+    bool    initialized;
+} ignis_display_ctx_t;
+
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
-void ignis_display_init(void);
-void ignis_display_send_data(const uint8_t data[4], bool time);
 
 #ifdef __cplusplus
 }
 #endif
-#endif  // IGNIS_DISPLAY_H
+#endif  // IGNIS_DISPLAY_PRIV_H

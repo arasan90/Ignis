@@ -3,6 +3,7 @@ set(MAIN_TARGET)
 set(PRIVATE_LIBS
         ignis_core
         ignis_keymap
+        ignis_display
         k_osal
 )
 

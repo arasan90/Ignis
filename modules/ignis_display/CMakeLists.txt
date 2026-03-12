@@ -9,6 +9,8 @@ if (IDF_TARGET)
     set(PRIVATE_LINKS
             ${PRIVATE_LINKS}
             k_hal
+            idf::driver
+            idf::tm1637
     )
 else ()
     set(SRC_FOLDER src/host)

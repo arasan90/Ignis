@@ -4,7 +4,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (TARGET_PLATFORM STREQUAL "esp32c3")
     include(cmake/esp32c3-toolchain.cmake)
-    set(EXTRA_COMPONENT_DIRS "modules/ignis_main")
+    set(EXTRA_COMPONENT_DIRS "modules/ignis_main" "libs/tm1637")
 endif ()
 
 project(Ignis VERSION 1.0.0 LANGUAGES C CXX)

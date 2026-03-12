@@ -41,7 +41,7 @@ void ignis_core_thread_function(void *param)
         size_t received_signals = 0;
         if (k_osal_signal_wait(ignis_core_context_p->signal, 1, &received_signals, 1, 1, K_OSAL_SIGNAL_NO_WAIT) > 0)
         {
-            printf("RECEIVED SIGNALS: %zu\n\r", received_signals);
+            printf("state: %d\n\r", ignis_core_context_p->state);
         }
         switch (ignis_core_context_p->state)
         {
@@ -80,7 +80,9 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
             if (IGNIS_CORE_STATE_READY_TO_BE_ARMED != ignis_core_context.state && IGNIS_CORE_STATE_IDLE != ignis_core_context.state)
             {
                 ignis_core_add_digit_to_display_buffer(key);
-                ignis_display_send_data(ignis_core_context.display_digits);
+                bool is_time =
+                    IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME == ignis_core_context.state || IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME == ignis_core_context.state;
+                ignis_display_send_data(ignis_core_context.display_digits, is_time);
             }
             break;
         case IGNIS_KEYMAP_KEY_ENTER:
@@ -109,7 +111,7 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
                     if (0 == memcmp(ignis_core_context.defuse_code, ignis_core_context.display_digits, sizeof(ignis_core_context.defuse_code)))
                     {
                         ignis_core_reset_display_buffer();
-                        ignis_display_send_data(ignis_core_context.display_digits);
+                        ignis_display_send_data(ignis_core_context.display_digits, 0);
                         ignis_core_context.state = IGNIS_CORE_STATE_IDLE;
                         memset(ignis_core_context.defuse_code, 0, sizeof(ignis_core_context.defuse_code));
                         ignis_core_context.total_time_sec = ignis_core_context.buzzing_time_sec = 0;
@@ -119,13 +121,15 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
                     break;
             }
             ignis_core_reset_display_buffer();
+            ignis_display_send_data(ignis_core_context.display_digits, 0);
             break;
         case IGNIS_KEYMAP_KEY_ESC:
-            if (IGNIS_CORE_IS_DIGITS_BUFFER_EMPTY())
+            ignis_core_reset_display_buffer();
+            ignis_display_send_data(ignis_core_context.display_digits, 0);
+            if (IGNIS_CORE_STATE_ARMED != ignis_core_context.state && IGNIS_CORE_IS_DIGITS_BUFFER_EMPTY())
             {
                 ignis_core_context.state = IGNIS_CORE_STATE_IDLE;
             }
-            ignis_core_reset_display_buffer();
             break;
         default:
             break;

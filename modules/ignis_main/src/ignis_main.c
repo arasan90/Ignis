@@ -8,8 +8,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "ignis_main.h"
 
-#include "ignis_keymap.h"
 #include "ignis_core.h"
+#include "ignis_display.h"
+#include "ignis_keymap.h"
 
 /* Macros --------------------------------------------------------------------*/
 /* Typedefs ------------------------------------------------------------------*/
@@ -19,7 +20,8 @@
 /* Function Definitions ------------------------------------------------------*/
 int ignis_main(void)
 {
-    ignis_core_start();
     ignis_keymap_start();
+    ignis_display_init();
+    ignis_core_start();
     return 0;
 }

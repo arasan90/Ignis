@@ -19,52 +19,14 @@
 /* Typedefs ------------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
 /* Constants -----------------------------------------------------------------*/
-const size_t ignis_core_thread_sleep_time_ms = 50;
-
 /* Variables -----------------------------------------------------------------*/
 ignis_core_context_t ignis_core_context = IGNIS_CORE_CONTEXT_INIT();
 
 /* Function Definitions ------------------------------------------------------*/
-void ignis_core_start(void)
-{
-    k_osal_signal_create(&ignis_core_context.signal);
-    k_osal_thread_create(&ignis_core_context.thread, "ignis_core", K_OSAL_THREAD_PRIORITY_MEDIUM, 4096, ignis_core_thread_function, &ignis_core_context);
-}
-
-void ignis_core_thread_function(void *param)
-{
-    const ignis_core_context_t *const ignis_core_context_p = param;
-    ignis_keymap_register_callback(ignis_core_keymap_callback);
-    // ReSharper disable once CppDFAEndlessLoop
-    while (1)
-    {
-        size_t received_signals = 0;
-        if (k_osal_signal_wait(ignis_core_context_p->signal, 1, &received_signals, 1, 1, K_OSAL_SIGNAL_NO_WAIT) > 0)
-        {
-            printf("state: %d\n\r", ignis_core_context_p->state);
-        }
-        switch (ignis_core_context_p->state)
-        {
-            case IGNIS_CORE_STATE_IDLE:
-                break;
-            case IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME:
-                break;
-            case IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME:
-                break;
-            case IGNIS_CORE_STATE_PROGRAMMING_CODE:
-                break;
-            case IGNIS_CORE_STATE_READY_TO_BE_ARMED:
-                break;
-            case IGNIS_CORE_STATE_ARMED:
-                break;
-        }
-        k_osal_thread_sleep(ignis_core_thread_sleep_time_ms);
-    }
-}
+void ignis_core_start(void) {}
 
 void ignis_core_keymap_callback(const ignis_keymap_key_t key)
 {
-    k_osal_signal_set(ignis_core_context.signal, 1);
     switch (key)
     {
         case IGNIS_KEYMAP_KEY_0:

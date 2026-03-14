@@ -12,8 +12,6 @@
 #include <stdint.h>
 
 #include "ignis_keymap.h"
-#include "k_osal/signals.h"
-#include "k_osal/thread.h"
 
 /* Macros --------------------------------------------------------------------*/
 #ifdef __cplusplus
@@ -22,8 +20,6 @@ extern "C"
 #endif
 #define IGNIS_CORE_CONTEXT_INIT()                     \
     {                                                 \
-        .thread           = {NULL},                   \
-        .signal           = {NULL},                   \
         .state            = IGNIS_CORE_STATE_IDLE,    \
         .display_digits   = {0xFF, 0xFF, 0xFF, 0xFF}, \
         .defuse_code      = {0xFF, 0xFF, 0xFF, 0xFF}, \
@@ -47,8 +43,6 @@ typedef enum ignis_core_state_e
 
 typedef struct ignis_core_context_s
 {
-    k_osal_thread_t    thread;             //!< Ignis core thread handle
-    k_osal_signal_t    signal;             //!< Ignis core signals handler
     ignis_core_state_t state;              //!< Ignis core current state
     uint8_t            display_digits[4];  //!< Ignis core display digits
     uint8_t            defuse_code[4];     //!< Code to defuse the bomb

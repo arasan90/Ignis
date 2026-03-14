@@ -8,6 +8,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "ignis_main.h"
 
+#include <stdio.h>
+
 #include "ignis_core.h"
 #include "ignis_display.h"
 #include "ignis_keymap.h"
@@ -17,7 +19,9 @@
 /* Function Declarations -----------------------------------------------------*/
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
+
 /* Function Definitions ------------------------------------------------------*/
+
 int ignis_main(void)
 {
     ignis_keymap_start();

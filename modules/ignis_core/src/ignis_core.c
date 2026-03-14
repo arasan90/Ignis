@@ -55,11 +55,11 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
                     ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME;
                     break;
                 case IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME:
-                    ignis_core_context.total_time_sec = ignis_core_calculate_time_sec(ignis_core_context.display_digits);
+                    ignis_core_context.total_time_min = ignis_core_calculate_time_min(ignis_core_context.display_digits);
                     ignis_core_context.state          = IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME;
                     break;
                 case IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME:
-                    ignis_core_context.buzzing_time_sec = ignis_core_calculate_time_sec(ignis_core_context.display_digits);
+                    ignis_core_context.buzzing_time_min = ignis_core_calculate_time_min(ignis_core_context.display_digits);
                     ignis_core_context.state            = IGNIS_CORE_STATE_PROGRAMMING_CODE;
                     break;
                 case IGNIS_CORE_STATE_PROGRAMMING_CODE:
@@ -76,7 +76,7 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
                         ignis_display_send_data(ignis_core_context.display_digits, 0);
                         ignis_core_context.state = IGNIS_CORE_STATE_IDLE;
                         memset(ignis_core_context.defuse_code, 0, sizeof(ignis_core_context.defuse_code));
-                        ignis_core_context.total_time_sec = ignis_core_context.buzzing_time_sec = 0;
+                        ignis_core_context.total_time_min = ignis_core_context.buzzing_time_min = 0;
                     }
                     break;
                 default:
@@ -109,7 +109,7 @@ void ignis_core_add_digit_to_display_buffer(const int8_t digit)
 
 void ignis_core_reset_display_buffer(void) { memset(ignis_core_context.display_digits, -1, sizeof(ignis_core_context.display_digits)); }
 
-size_t ignis_core_calculate_time_sec(const uint8_t digits[4])
+size_t ignis_core_calculate_time_min(const uint8_t digits[4])
 {
     /*
      * data[0] hours * 10
@@ -117,10 +117,10 @@ size_t ignis_core_calculate_time_sec(const uint8_t digits[4])
      * data[2] minutes * 10
      * data[3] minutes
      */
-    size_t time_sec = 0;
-    time_sec += digits[3] * 60;
-    time_sec += digits[2] * 60 * 10;
-    time_sec += digits[1] * 3600;
-    time_sec += digits[0] * 3600 * 10;
-    return time_sec;
+    size_t time_min = 0;
+    time_min += digits[3];
+    time_min += digits[2] * 10;
+    time_min += digits[1] * 60;
+    time_min += digits[0] * 60 * 10;
+    return time_min;
 }

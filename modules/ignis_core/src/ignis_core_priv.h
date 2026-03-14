@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 #include "ignis_keymap.h"
+#include "k_osal/timer.h"
 
 /* Macros --------------------------------------------------------------------*/
 #ifdef __cplusplus
@@ -23,8 +24,9 @@ extern "C"
         .state            = IGNIS_CORE_STATE_IDLE,    \
         .display_digits   = {0xFF, 0xFF, 0xFF, 0xFF}, \
         .defuse_code      = {0xFF, 0xFF, 0xFF, 0xFF}, \
-        .total_time_sec   = 0,                        \
-        .buzzing_time_sec = 0,                        \
+        .total_time_min   = 0,                        \
+        .buzzing_time_min = 0,                        \
+        .elapsed_time_min = 0,                        \
     }
 #define IGNIS_CORE_IS_DIGITS_BUFFER_EMPTY()                                                                                                          \
     (ignis_core_context.display_digits[0] == 0xFF && ignis_core_context.display_digits[1] == 0xFF && ignis_core_context.display_digits[2] == 0xFF && \
@@ -43,11 +45,13 @@ typedef enum ignis_core_state_e
 
 typedef struct ignis_core_context_s
 {
+    k_osal_timer_t     timer;              //!< Timer to manage the playtime
+    size_t             total_time_min;     //!< Total bomb time in minutes
+    size_t             buzzing_time_min;   //!< Buzzing time in minutes
+    size_t             elapsed_time_min;   //!< Elapsed time from when the prop has been armed in minutes
     ignis_core_state_t state;              //!< Ignis core current state
     uint8_t            display_digits[4];  //!< Ignis core display digits
     uint8_t            defuse_code[4];     //!< Code to defuse the bomb
-    size_t             total_time_sec;     //!< Total bomb time in seconds
-    size_t             buzzing_time_sec;   //!< Buzzing time in seconds
 } ignis_core_context_t;                    //!< Ignis core context
 
 extern ignis_core_context_t ignis_core_context;
@@ -89,7 +93,7 @@ void ignis_core_add_digit_to_display_buffer(int8_t digit);
 void ignis_core_reset_display_buffer(void);
 
 /**
- * Calculates the total time in seconds based on the input array of digits.
+ * Calculates the total time in minutes based on the input array of digits.
  * The digits array represents a time value in the following format:
  * - digits[3]: minutes (0-9)
  * - digits[2]: tens of minutes (0-9)
@@ -97,9 +101,9 @@ void ignis_core_reset_display_buffer(void);
  * - digits[0]: tens of hours (0-9)
  *
  * @param digits An array of 4 uint8_t values representing minutes and hours as described above.
- * @return The total time in seconds as a size_t value.
+ * @return The total time in minutes as a size_t value.
  */
-size_t ignis_core_calculate_time_sec(const uint8_t digits[4]);
+size_t ignis_core_calculate_time_min(const uint8_t digits[4]);
 
 #ifdef __cplusplus
 }

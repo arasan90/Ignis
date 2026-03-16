@@ -21,6 +21,7 @@ extern "C"
 #endif
 #define IGNIS_CORE_CONTEXT_INIT()                     \
     {                                                 \
+        .timer            = {0},                      \
         .state            = IGNIS_CORE_STATE_IDLE,    \
         .display_digits   = {0xFF, 0xFF, 0xFF, 0xFF}, \
         .defuse_code      = {0xFF, 0xFF, 0xFF, 0xFF}, \
@@ -105,6 +106,11 @@ void ignis_core_reset_display_buffer(void);
  */
 size_t ignis_core_calculate_time_min(const uint8_t digits[4]);
 
+/**
+ * @brief Callback for timer expiration
+ * @param params User context.
+ */
+void ignis_core_timer_callback(void *params);
 #ifdef __cplusplus
 }
 #endif

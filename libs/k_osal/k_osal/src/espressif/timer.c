@@ -52,7 +52,7 @@ int k_osal_timer_start(const k_osal_timer_t timer)
     const k_osal_timer_priv_t *timer_priv = timer.timer_handle;
     if (pdFALSE == xTimerIsTimerActive(timer_priv->timer_handle))
     {
-        if (pdFAIL == xTimerStart(timer.timer_handle, 0))
+        if (pdFAIL == xTimerStart(timer_priv->timer_handle, 0))
         {
             ret_code = -1;
         }
@@ -67,7 +67,7 @@ int k_osal_timer_stop(const k_osal_timer_t timer)
     const k_osal_timer_priv_t *timer_priv = timer.timer_handle;
     if (pdTRUE == xTimerIsTimerActive(timer_priv->timer_handle))
     {
-        if (pdFAIL == xTimerStop(timer.timer_handle, 0))
+        if (pdFAIL == xTimerStop(timer_priv->timer_handle, 0))
         {
             ret_code = -1;
         }

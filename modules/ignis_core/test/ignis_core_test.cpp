@@ -13,7 +13,6 @@
 #include "ignis_core_priv.h"
 #include "ignis_display_mock.h"
 #include "ignis_keymap_mock.h"
-#include "k_osal/thread.h"
 
 /* Macros --------------------------------------------------------------------*/
 /* Typedefs ------------------------------------------------------------------*/
@@ -23,10 +22,7 @@
 DEFINE_FFF_GLOBALS
 
 /* Function Definitions ------------------------------------------------------*/
-FAKE_VALUE_FUNC(int, k_osal_thread_create, k_osal_thread_t *, const char *, k_osal_thread_priority_t, size_t, k_osal_thread_func_t, void *)
-FAKE_VOID_FUNC(k_osal_thread_sleep, size_t)
 
-#include <stddef.h>
 class IgnisCoreTest : public ::testing::Test
 {
    protected:
@@ -120,10 +116,10 @@ TEST_F(IgnisCoreTest, CalculateTimeFromDigits)
     constexpr uint8_t digits_1_hour[4]              = {0, 1, 0, 0};
     constexpr uint8_t digits_1_hour_10_minutes[4]   = {0, 1, 1, 0};
     constexpr uint8_t digits_14_hours_25_minutes[4] = {1, 4, 2, 5};
-    EXPECT_EQ(ignis_core_calculate_time_sec(digits_10_minutes), 60 * 10);
-    EXPECT_EQ(ignis_core_calculate_time_sec(digits_1_hour), 60 * 60);
-    EXPECT_EQ(ignis_core_calculate_time_sec(digits_1_hour_10_minutes), 60 * 60 + 10 * 60);
-    EXPECT_EQ(ignis_core_calculate_time_sec(digits_14_hours_25_minutes), 60 * 60 * 14 + 25 * 60);
+    EXPECT_EQ(ignis_core_calculate_time_min(digits_10_minutes), 10);
+    EXPECT_EQ(ignis_core_calculate_time_min(digits_1_hour), 60);
+    EXPECT_EQ(ignis_core_calculate_time_min(digits_1_hour_10_minutes), 70);
+    EXPECT_EQ(ignis_core_calculate_time_min(digits_14_hours_25_minutes), 60 * 14 + 25);
 }
 
 TEST_F(IgnisCoreTest, SetUpGame)
@@ -136,14 +132,14 @@ TEST_F(IgnisCoreTest, SetUpGame)
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_0);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_0);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_ENTER);
-    EXPECT_EQ(ignis_core_context.total_time_sec, 60 * 60);
+    EXPECT_EQ(ignis_core_context.total_time_min, 60);
     EXPECT_EQ(ignis_core_context.state, IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_0);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_0);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_1);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_0);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_ENTER);
-    EXPECT_EQ(ignis_core_context.buzzing_time_sec, 60 * 10);
+    EXPECT_EQ(ignis_core_context.buzzing_time_min, 10);
     EXPECT_EQ(ignis_core_context.state, IGNIS_CORE_STATE_PROGRAMMING_CODE);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_5);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_7);

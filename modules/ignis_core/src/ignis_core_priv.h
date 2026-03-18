@@ -19,15 +19,10 @@
 extern "C"
 {
 #endif
-#define IGNIS_CORE_CONTEXT_INIT()                     \
-    {                                                 \
-        .timer            = {0},                      \
-        .state            = IGNIS_CORE_STATE_IDLE,    \
-        .display_digits   = {0xFF, 0xFF, 0xFF, 0xFF}, \
-        .defuse_code      = {0xFF, 0xFF, 0xFF, 0xFF}, \
-        .total_time_min   = 0,                        \
-        .buzzing_time_min = 0,                        \
-        .elapsed_time_min = 0,                        \
+#define IGNIS_CORE_CONTEXT_INIT()                                                                                                          \
+    {                                                                                                                                      \
+        .timer = {0}, .state = IGNIS_CORE_STATE_IDLE, .display_digits = {0xFF, 0xFF, 0xFF, 0xFF}, .defuse_code = {0xFF, 0xFF, 0xFF, 0xFF}, \
+        .total_time_min = 0, .buzzing_time_min = 0, .elapsed_time_min = 0,                                                                 \
     }
 #define IGNIS_CORE_IS_DIGITS_BUFFER_EMPTY()                                                                                                          \
     (ignis_core_context.display_digits[0] == 0xFF && ignis_core_context.display_digits[1] == 0xFF && ignis_core_context.display_digits[2] == 0xFF && \
@@ -105,6 +100,18 @@ void ignis_core_reset_display_buffer(void);
  * @return The total time in minutes as a size_t value.
  */
 size_t ignis_core_calculate_time_min(const uint8_t digits[4]);
+
+/**
+ * @brief Calculates the individual digits to be displayed based on the remaining time in minutes.
+ *
+ * @param digits An array of 4 uint8_t values where the calculated digits will be stored. The format is:
+ * - digits[0]: tens of hours (0-9)
+ * - digits[1]: hours (0-9)
+ * - digits[2]: tens of minutes (0-9)
+ * - digits[3]: minutes (0-9)
+ * @param time_min The remaining time in minutes to be converted into display digits.
+ */
+void ignis_core_calculate_digits(uint8_t digits[4], size_t time_min);
 
 /**
  * @brief Callback for timer expiration

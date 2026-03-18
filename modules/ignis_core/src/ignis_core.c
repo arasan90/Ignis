@@ -61,35 +61,33 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
                 case IGNIS_CORE_STATE_IDLE:
                     ignis_core_context.elapsed_time_min = 0;
                     ignis_core_reset_display_buffer();
+                    ignis_display_send_data(ignis_core_context.display_digits, 0);
                     ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME;
                     break;
                 case IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME:
 
                     ignis_core_context.total_time_min = ignis_core_calculate_time_min(ignis_core_context.display_digits);
                     ignis_core_reset_display_buffer();
+                    ignis_display_send_data(ignis_core_context.display_digits, 0);
                     ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME;
                     break;
                 case IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME:
                     ignis_core_context.buzzing_time_min = ignis_core_calculate_time_min(ignis_core_context.display_digits);
                     ignis_core_reset_display_buffer();
+                    ignis_display_send_data(ignis_core_context.display_digits, 0);
                     ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_CODE;
                     break;
                 case IGNIS_CORE_STATE_PROGRAMMING_CODE:
                     memcpy(ignis_core_context.defuse_code, ignis_core_context.display_digits, sizeof(ignis_core_context.defuse_code));
                     ignis_core_reset_display_buffer();
+                    ignis_display_send_data(ignis_core_context.display_digits, 0);
                     ignis_core_context.state = IGNIS_CORE_STATE_READY_TO_BE_ARMED;
                     break;
                 case IGNIS_CORE_STATE_READY_TO_BE_ARMED:
                 {
-                    size_t remaining_time_min            = ignis_core_context.total_time_min - ignis_core_context.elapsed_time_min;
-                    ignis_core_context.display_digits[0] = remaining_time_min / 600;
-                    remaining_time_min %= 600;
-                    ignis_core_context.display_digits[1] = remaining_time_min / 60;
-                    remaining_time_min %= 60;
-                    ignis_core_context.display_digits[2] = remaining_time_min / 10;
-                    remaining_time_min %= 10;
-                    ignis_core_context.display_digits[3] = remaining_time_min;
-                    ignis_display_send_data(ignis_core_context.display_digits, true);
+                    uint8_t digits[4] = {0};
+                    ignis_core_calculate_digits(digits, ignis_core_context.total_time_min);
+                    ignis_display_send_data(digits, true);
                     ignis_core_context.state = IGNIS_CORE_STATE_ARMED;
                     k_osal_timer_start(ignis_core_context.timer);
                     printf("Timer started\n");
@@ -108,7 +106,6 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
                 default:
                     break;
             }
-            ignis_display_send_data(ignis_core_context.display_digits, 0);
             break;
         case IGNIS_KEYMAP_KEY_ESC:
             ignis_core_reset_display_buffer();
@@ -150,20 +147,24 @@ size_t ignis_core_calculate_time_min(const uint8_t digits[4])
     return time_min;
 }
 
+void ignis_core_calculate_digits(uint8_t digits[4], size_t time_min)
+{
+    digits[0] = time_min / 600;
+    time_min %= 600;
+    digits[1] = time_min / 60;
+    time_min %= 60;
+    digits[2] = time_min / 10;
+    time_min %= 10;
+    digits[3] = time_min;
+}
+
 void ignis_core_timer_callback(void *params)
 {
     (void)params;
-    printf("Timer callback\n");
     uint8_t digits[4] = {0};
     ignis_core_context.elapsed_time_min++;
     size_t remaining_time_min = ignis_core_context.total_time_min - ignis_core_context.elapsed_time_min;
-    digits[0]                 = remaining_time_min / 600;
-    remaining_time_min %= 600;
-    digits[1] = remaining_time_min / 60;
-    remaining_time_min %= 60;
-    digits[2] = remaining_time_min / 10;
-    remaining_time_min %= 10;
-    digits[3] = remaining_time_min;
+    ignis_core_calculate_digits(digits, remaining_time_min);
     ignis_display_send_data(digits, true);
     if (ignis_core_context.elapsed_time_min == ignis_core_context.total_time_min)
     {

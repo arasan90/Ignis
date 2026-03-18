@@ -4,3 +4,6 @@
 [submodule "libs/k_ghost_io/k_ghost_io"]
 	path = libs/k_ghost_io/k_ghost_io
 	url = https://github.com/arasan90/k_ghost_io.git
+[submodule "libs/tm1637"]
+	path = libs/tm1637
+	url = https://github.com/heronet/esp-idf-tm1637.git

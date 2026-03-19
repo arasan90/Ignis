@@ -21,12 +21,14 @@ extern "C"
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
-DECLARE_FAKE_VOID_FUNC(ignis_display_send_data, const uint8_t *, bool)
+DECLARE_FAKE_VOID_FUNC(ignis_display_send_numeric_data, const uint8_t *, bool)
+DECLARE_FAKE_VOID_FUNC(ignis_display_send_string, const char *)
 DECLARE_FAKE_VOID_FUNC(ignis_display_init)
 
 inline void ignis_display_mock_reset_fakes(void)
 {
-    RESET_FAKE(ignis_display_send_data);
+    RESET_FAKE(ignis_display_send_numeric_data);
+    RESET_FAKE(ignis_display_send_string);
     RESET_FAKE(ignis_display_init);
 }
 #ifdef __cplusplus

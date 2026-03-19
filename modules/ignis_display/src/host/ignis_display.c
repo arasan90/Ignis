@@ -34,18 +34,29 @@ void ignis_display_init(void)
         ignis_display_ctx.initialized = true;
     }
 }
-void ignis_display_send_data(const uint8_t data[4], const bool time)
+void ignis_display_send_numeric_data(const uint8_t *data, const bool time)
 {
     (void)time;
     for (int i = 0; i < 4; i++)
     {
-        if (0xFF == data[i])
+        ignis_display_ctx.display_digits[i] = 0x30 + data[i];
+    }
+    ignis_display_sync_cb();
+}
+
+void ignis_display_send_string(const char *text)
+{
+    const size_t string_len = strlen(text);
+    memset(ignis_display_ctx.display_digits, 0, sizeof(ignis_display_ctx.display_digits));
+    for (size_t i = 0; i <= string_len; i++)
+    {
+        ignis_display_ctx.display_digits[i] = text[i];
+    }
+    if (string_len < 4)
+    {
+        for (size_t i = string_len; i < 4; i++)
         {
-            ignis_display_ctx.display_digits[i] = '-';
-        }
-        else
-        {
-            ignis_display_ctx.display_digits[i] = 0x30 + data[i];
+            ignis_display_ctx.display_digits[i] = '\x1F';  // Blank char
         }
     }
     ignis_display_sync_cb();
@@ -53,14 +64,14 @@ void ignis_display_send_data(const uint8_t data[4], const bool time)
 
 void ignis_display_sync_cb(void)
 {
-    const size_t space_needed = snprintf(NULL, 0, "{\"value\":\"%c%c%c%c\"}", ignis_display_ctx.display_digits[0], ignis_display_ctx.display_digits[1],
-                                         ignis_display_ctx.display_digits[2], ignis_display_ctx.display_digits[3]) +
+    const size_t space_needed = snprintf(NULL, 0, "{\"interface\":\"display\",\"value\":\"%c%c%c%c\"}", ignis_display_ctx.display_digits[0],
+                                         ignis_display_ctx.display_digits[1], ignis_display_ctx.display_digits[2], ignis_display_ctx.display_digits[3]) +
                                 1;
     char *event_data = calloc(space_needed, sizeof(char));
     if (event_data)
     {
-        snprintf(event_data, space_needed, "{\"value\":\"%c%c%c%c\"}", ignis_display_ctx.display_digits[0], ignis_display_ctx.display_digits[1],
-                 ignis_display_ctx.display_digits[2], ignis_display_ctx.display_digits[3]);
+        snprintf(event_data, space_needed, "{\"interface\":\"display\",\"value\":\"%c%c%c%c\"}", ignis_display_ctx.display_digits[0],
+                 ignis_display_ctx.display_digits[1], ignis_display_ctx.display_digits[2], ignis_display_ctx.display_digits[3]);
         k_ghost_io_send_event(event_data);
     }
     free(event_data);

@@ -21,12 +21,12 @@ extern "C"
 #endif
 #define IGNIS_CORE_CONTEXT_INIT()                                                                                                          \
     {                                                                                                                                      \
-        .timer = {0}, .state = IGNIS_CORE_STATE_IDLE, .display_digits = {0xFF, 0xFF, 0xFF, 0xFF}, .defuse_code = {0xFF, 0xFF, 0xFF, 0xFF}, \
+        .timer = {0}, .state = IGNIS_CORE_STATE_IDLE, .display_digits = {0x00, 0x00, 0x00, 0x00}, .defuse_code = {0x00, 0x00, 0x00, 0x00}, \
         .total_time_min = 0, .buzzing_time_min = 0, .elapsed_time_min = 0,                                                                 \
     }
 #define IGNIS_CORE_IS_DIGITS_BUFFER_EMPTY()                                                                                                          \
-    (ignis_core_context.display_digits[0] == 0xFF && ignis_core_context.display_digits[1] == 0xFF && ignis_core_context.display_digits[2] == 0xFF && \
-     ignis_core_context.display_digits[3] == 0xFF)
+    (ignis_core_context.display_digits[0] == 0x00 && ignis_core_context.display_digits[1] == 0x00 && ignis_core_context.display_digits[2] == 0x00 && \
+     ignis_core_context.display_digits[3] == 0x00)
 
 /* Typedef -------------------------------------------------------------------*/
 typedef enum ignis_core_state_e

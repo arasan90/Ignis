@@ -14,5 +14,6 @@
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
 /* Function Definitions ------------------------------------------------------*/
-DEFINE_FAKE_VOID_FUNC(ignis_display_send_data, const uint8_t *, bool)
+DEFINE_FAKE_VOID_FUNC(ignis_display_send_numeric_data, const uint8_t *, bool)
+DEFINE_FAKE_VOID_FUNC(ignis_display_send_string, const char *)
 DEFINE_FAKE_VOID_FUNC(ignis_display_init)

@@ -22,7 +22,8 @@ extern "C"
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
 void ignis_display_init(void);
-void ignis_display_send_data(const uint8_t data[4], bool time);
+void ignis_display_send_numeric_data(const uint8_t *data, bool time);
+void ignis_display_send_string(const char *text);
 
 #ifdef __cplusplus
 }

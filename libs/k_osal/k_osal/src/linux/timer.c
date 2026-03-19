@@ -96,7 +96,7 @@ int k_osal_timer_stop(const k_osal_timer_t timer)
 {
     k_osal_timer_priv_t *timer_priv = timer.timer_handle;
     int                  ret_code   = 0;
-    if (!timer_priv->started)
+    if (timer_priv->started)
     {
         ret_code              = -1;
         struct itimerspec its = {

@@ -30,7 +30,7 @@ class IgnisCoreTest : public ::testing::Test
     {
         ignis_keymap_mock_reset_fakes();
         memset(&ignis_core_context, 0, sizeof(ignis_core_context_t));
-        memset(ignis_core_context.display_digits, 0xFF, sizeof(ignis_core_context.display_digits));
+        memset(ignis_core_context.display_digits, 0x00, sizeof(ignis_core_context.display_digits));
     }
     ~IgnisCoreTest() override = default;
 };
@@ -38,17 +38,17 @@ class IgnisCoreTest : public ::testing::Test
 TEST_F(IgnisCoreTest, AddDigitToDisplayBuffer)
 {
     ignis_core_add_digit_to_display_buffer(1);
-    EXPECT_EQ(ignis_core_context.display_digits[0], 0xFF);
-    EXPECT_EQ(ignis_core_context.display_digits[1], 0xFF);
-    EXPECT_EQ(ignis_core_context.display_digits[2], 0xFF);
+    EXPECT_EQ(ignis_core_context.display_digits[0], 0x00);
+    EXPECT_EQ(ignis_core_context.display_digits[1], 0x00);
+    EXPECT_EQ(ignis_core_context.display_digits[2], 0x00);
     EXPECT_EQ(ignis_core_context.display_digits[3], 1);
     ignis_core_add_digit_to_display_buffer(2);
-    EXPECT_EQ(ignis_core_context.display_digits[0], 0xFF);
-    EXPECT_EQ(ignis_core_context.display_digits[1], 0xFF);
+    EXPECT_EQ(ignis_core_context.display_digits[0], 0x00);
+    EXPECT_EQ(ignis_core_context.display_digits[1], 0x00);
     EXPECT_EQ(ignis_core_context.display_digits[2], 1);
     EXPECT_EQ(ignis_core_context.display_digits[3], 2);
     ignis_core_add_digit_to_display_buffer(3);
-    EXPECT_EQ(ignis_core_context.display_digits[0], 0xFF);
+    EXPECT_EQ(ignis_core_context.display_digits[0], 0x00);
     EXPECT_EQ(ignis_core_context.display_digits[1], 1);
     EXPECT_EQ(ignis_core_context.display_digits[2], 2);
     EXPECT_EQ(ignis_core_context.display_digits[3], 3);
@@ -75,39 +75,39 @@ TEST_F(IgnisCoreTest, ResetDisplayBuffer)
     EXPECT_EQ(ignis_core_context.display_digits[2], 3);
     EXPECT_EQ(ignis_core_context.display_digits[3], 4);
     ignis_core_reset_display_buffer();
-    EXPECT_EQ(ignis_core_context.display_digits[0], 0xFF);
-    EXPECT_EQ(ignis_core_context.display_digits[1], 0xFF);
-    EXPECT_EQ(ignis_core_context.display_digits[2], 0xFF);
-    EXPECT_EQ(ignis_core_context.display_digits[3], 0xFF);
+    EXPECT_EQ(ignis_core_context.display_digits[0], 0x00);
+    EXPECT_EQ(ignis_core_context.display_digits[1], 0x00);
+    EXPECT_EQ(ignis_core_context.display_digits[2], 0x00);
+    EXPECT_EQ(ignis_core_context.display_digits[3], 0x00);
 }
 
 TEST_F(IgnisCoreTest, SendDataToDisplayWhenAKeyIsPressed)
 {
     ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME;
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_1);
-    EXPECT_EQ(ignis_display_send_data_fake.call_count, 1);
-    EXPECT_EQ(ignis_display_send_data_fake.arg0_val[0], 0xFF);
-    EXPECT_EQ(ignis_display_send_data_fake.arg0_val[1], 0xFF);
-    EXPECT_EQ(ignis_display_send_data_fake.arg0_val[2], 0xFF);
-    EXPECT_EQ(ignis_display_send_data_fake.arg0_val[3], 1);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.call_count, 1);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.arg0_val[0], 0x00);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.arg0_val[1], 0x00);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.arg0_val[2], 0x00);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.arg0_val[3], 1);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_2);
-    EXPECT_EQ(ignis_display_send_data_fake.call_count, 2);
-    EXPECT_EQ(ignis_core_context.display_digits[0], 0xFF);
-    EXPECT_EQ(ignis_core_context.display_digits[1], 0xFF);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.call_count, 2);
+    EXPECT_EQ(ignis_core_context.display_digits[0], 0x00);
+    EXPECT_EQ(ignis_core_context.display_digits[1], 0x00);
     EXPECT_EQ(ignis_core_context.display_digits[2], 1);
     EXPECT_EQ(ignis_core_context.display_digits[3], 2);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_3);
-    EXPECT_EQ(ignis_display_send_data_fake.call_count, 3);
-    EXPECT_EQ(ignis_core_context.display_digits[0], 0xFF);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.call_count, 3);
+    EXPECT_EQ(ignis_core_context.display_digits[0], 0x00);
     EXPECT_EQ(ignis_core_context.display_digits[1], 1);
     EXPECT_EQ(ignis_core_context.display_digits[2], 2);
     EXPECT_EQ(ignis_core_context.display_digits[3], 3);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_4);
-    EXPECT_EQ(ignis_display_send_data_fake.call_count, 4);
-    EXPECT_EQ(ignis_display_send_data_fake.arg0_val[0], 1);
-    EXPECT_EQ(ignis_display_send_data_fake.arg0_val[1], 2);
-    EXPECT_EQ(ignis_display_send_data_fake.arg0_val[2], 3);
-    EXPECT_EQ(ignis_display_send_data_fake.arg0_val[3], 4);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.call_count, 4);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.arg0_val[0], 1);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.arg0_val[1], 2);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.arg0_val[2], 3);
+    EXPECT_EQ(ignis_display_send_numeric_data_fake.arg0_val[3], 4);
 }
 
 TEST_F(IgnisCoreTest, CalculateTimeFromDigits)

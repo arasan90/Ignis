@@ -14,6 +14,7 @@
 #include "ignis_core_priv.h"
 #include "ignis_display.h"
 #include "ignis_keymap.h"
+#include "ignis_buzzer.h"
 
 /* Macros --------------------------------------------------------------------*/
 /* Typedefs ------------------------------------------------------------------*/
@@ -30,11 +31,21 @@ void ignis_core_start(void)
         k_osal_timer_create(&ignis_core_context.timer, 1000 * 60, true, false, ignis_core_timer_callback, NULL);
     }
     ignis_keymap_register_callback(ignis_core_keymap_callback);
-    ignis_display_send_string("idle");
+    ignis_display_send_string("safe");
 }
 
 void ignis_core_keymap_callback(const ignis_keymap_key_t key)
 {
+    /* Code to be always executed */
+    if (IGNIS_CORE_STATE_EXPLODED == ignis_core_context.state)
+    {
+        ignis_buzzer_alarm_shutoff();
+        ignis_core_context.state = IGNIS_CORE_STATE_IDLE;
+        memset(ignis_core_context.defuse_code, 0, sizeof(ignis_core_context.defuse_code));
+        ignis_core_context.total_time_min = ignis_core_context.buzzing_time_min = 0;
+        ignis_display_send_string("safe");
+        return;
+    }
     switch (key)
     {
     case IGNIS_KEYMAP_KEY_0:
@@ -97,20 +108,19 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
                 ignis_display_send_numeric_data(digits, true);
                 ignis_core_context.state = IGNIS_CORE_STATE_ARMED;
                 k_osal_timer_start(ignis_core_context.timer);
-                printf("Timer started\n");
             }
             break;
         case IGNIS_CORE_STATE_ARMED:
             if (0 == memcmp(ignis_core_context.defuse_code, ignis_core_context.display_digits,
                             sizeof(ignis_core_context.defuse_code)))
             {
+                ignis_buzzer_alarm_shutoff();
                 ignis_core_reset_display_buffer();
                 ignis_core_context.state = IGNIS_CORE_STATE_IDLE;
                 memset(ignis_core_context.defuse_code, 0, sizeof(ignis_core_context.defuse_code));
                 ignis_core_context.total_time_min = ignis_core_context.buzzing_time_min = 0;
-                ignis_display_send_string("idle");
+                ignis_display_send_string("safe");
                 k_osal_timer_stop(ignis_core_context.timer);
-                printf("Bomb defused\n");
             }
             else
             {
@@ -127,7 +137,7 @@ void ignis_core_keymap_callback(const ignis_keymap_key_t key)
         if (IGNIS_CORE_STATE_ARMED != ignis_core_context.state && IGNIS_CORE_IS_DIGITS_BUFFER_EMPTY())
         {
             ignis_core_context.state = IGNIS_CORE_STATE_IDLE;
-            ignis_display_send_string("idle");
+            ignis_display_send_string("safe");
         }
         else
         {
@@ -201,12 +211,13 @@ void ignis_core_timer_callback(void* params)
     ignis_display_send_numeric_data(digits, true);
     if (ignis_core_context.elapsed_time_min == ignis_core_context.total_time_min)
     {
-        printf("Long buzz\n");
+        ignis_buzzer_sound_long_alarm();
+        ignis_core_context.state = IGNIS_CORE_STATE_EXPLODED;
         k_osal_timer_stop(ignis_core_context.timer);
     }
     else if (0 != ignis_core_context.buzzing_time_min && 0 == ignis_core_context.elapsed_time_min % ignis_core_context.
         buzzing_time_min)
     {
-        printf("Small buzz\n");
+        ignis_buzzer_sound_short_alarm();
     }
 }

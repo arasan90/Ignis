@@ -1,31 +1,20 @@
 /**
  ********************************************************************************
- * @file    ignis_main.c
+ * @file    ignis_buzzer_mock.c
  * @author  Massimiliano Ianniello
- * @date    28/01/26
+ * @date    20/03/26
  ********************************************************************************
  */
+#include "ignis_buzzer_mock.h"
+
 /* Includes ------------------------------------------------------------------*/
-#include "ignis_main.h"
-
-#include "ignis_buzzer.h"
-#include "ignis_core.h"
-#include "ignis_display.h"
-#include "ignis_keymap.h"
-
 /* Macros --------------------------------------------------------------------*/
 /* Typedefs ------------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
-
 /* Function Definitions ------------------------------------------------------*/
-
-int ignis_main(void)
-{
-    ignis_buzzer_start();
-    ignis_keymap_start();
-    ignis_display_init();
-    ignis_core_start();
-    return 0;
-}
+DEFINE_FAKE_VOID_FUNC(ignis_buzzer_start)
+    DEFINE_FAKE_VOID_FUNC(ignis_buzzer_sound_short_alarm)
+    DEFINE_FAKE_VOID_FUNC(ignis_buzzer_sound_long_alarm)
+    DEFINE_FAKE_VOID_FUNC(ignis_buzzer_alarm_shutoff)

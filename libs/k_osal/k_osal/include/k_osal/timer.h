@@ -14,12 +14,14 @@
 
 /* Macros --------------------------------------------------------------------*/
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
+
+
+
 #endif
 typedef struct k_osal_timer_s
 {
-    void *timer_handle;  //!< Private member
+    void* timer_handle; //!< Private member
 } k_osal_timer_t;
 
 /**
@@ -27,7 +29,7 @@ typedef struct k_osal_timer_s
  *
  * @param params Context passed by the user
  */
-typedef void (*k_osal_timer_callback_t)(void *params);
+typedef void (*k_osal_timer_callback_t)(void* params);
 
 /* Variables -----------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
@@ -52,7 +54,8 @@ typedef void (*k_osal_timer_callback_t)(void *params);
  *         - 0: Success; the timer is created and initialized.
  *         - Non-zero: Failure; an error occurred during timer creation.
  */
-int k_osal_timer_create(k_osal_timer_t *timer, uint32_t timer_period, bool periodic, bool auto_start, k_osal_timer_callback_t callback, void *params);
+int k_osal_timer_create(k_osal_timer_t* timer, uint32_t timer_period, bool periodic, bool auto_start,
+                        k_osal_timer_callback_t callback, void* params);
 
 /**
  * @brief Starts a previously created timer.
@@ -78,6 +81,15 @@ int k_osal_timer_start(k_osal_timer_t timer);
  * @return Returns 0 on success, -1 otherwise.
  */
 int k_osal_timer_stop(k_osal_timer_t timer);
+
+/**
+ * @brief Set a new period for the timer
+ * @details The timer will be in a stopped state after changing the period
+ * @param timer The timer object to change the period to
+ * @param period_ms The new timer period to set
+ * @return 0 in case of success, -1 otherwise
+ */
+int k_osal_timer_set_period(k_osal_timer_t timer, uint32_t period_ms);
 
 /**
  * Deletes the specified timer and releases associated resources.

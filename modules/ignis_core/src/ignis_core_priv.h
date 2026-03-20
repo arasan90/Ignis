@@ -16,8 +16,10 @@
 
 /* Macros --------------------------------------------------------------------*/
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
+
+
+
 #endif
 #define IGNIS_CORE_CONTEXT_INIT()                                                                                                          \
     {                                                                                                                                      \
@@ -36,19 +38,20 @@ typedef enum ignis_core_state_e
     IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME,
     IGNIS_CORE_STATE_PROGRAMMING_CODE,
     IGNIS_CORE_STATE_READY_TO_BE_ARMED,
-    IGNIS_CORE_STATE_ARMED
+    IGNIS_CORE_STATE_ARMED,
+    IGNIS_CORE_STATE_EXPLODED,
 } ignis_core_state_t;
 
 typedef struct ignis_core_context_s
 {
-    k_osal_timer_t     timer;              //!< Timer to manage the playtime
-    size_t             total_time_min;     //!< Total bomb time in minutes
-    size_t             buzzing_time_min;   //!< Buzzing time in minutes
-    size_t             elapsed_time_min;   //!< Elapsed time from when the prop has been armed in minutes
-    ignis_core_state_t state;              //!< Ignis core current state
-    uint8_t            display_digits[4];  //!< Ignis core display digits
-    uint8_t            defuse_code[4];     //!< Code to defuse the bomb
-} ignis_core_context_t;                    //!< Ignis core context
+    k_osal_timer_t timer; //!< Timer to manage the playtime
+    size_t total_time_min; //!< Total bomb time in minutes
+    size_t buzzing_time_min; //!< Buzzing time in minutes
+    size_t elapsed_time_min; //!< Elapsed time from when the prop has been armed in minutes
+    ignis_core_state_t state; //!< Ignis core current state
+    uint8_t display_digits[4]; //!< Ignis core display digits
+    uint8_t defuse_code[4]; //!< Code to defuse the bomb
+} ignis_core_context_t; //!< Ignis core context
 
 extern ignis_core_context_t ignis_core_context;
 
@@ -59,7 +62,7 @@ extern ignis_core_context_t ignis_core_context;
  * @brief Ignis core thread function
  * @param param User context
  */
-void ignis_core_thread_function(void *param);
+void ignis_core_thread_function(void* param);
 
 /**
  * @brief Callback function for ignis_keymap module
@@ -117,7 +120,7 @@ void ignis_core_calculate_digits(uint8_t digits[4], size_t time_min);
  * @brief Callback for timer expiration
  * @param params User context.
  */
-void ignis_core_timer_callback(void *params);
+void ignis_core_timer_callback(void* params);
 #ifdef __cplusplus
 }
 #endif

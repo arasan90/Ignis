@@ -1,9 +1,10 @@
 set(MAIN_TARGET)
 
 set(PRIVATE_LIBS
+        ignis_buzzer
         ignis_core
-        ignis_keymap
         ignis_display
+        ignis_keymap
         k_osal
 )
 

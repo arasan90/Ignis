@@ -1,31 +1,20 @@
 /**
  ********************************************************************************
- * @file    ignis_main.c
+ * @file    k_hal_gpio_mock.c
  * @author  Massimiliano Ianniello
- * @date    28/01/26
+ * @date    20/03/26
  ********************************************************************************
  */
-/* Includes ------------------------------------------------------------------*/
-#include "ignis_main.h"
 
-#include "ignis_buzzer.h"
-#include "ignis_core.h"
-#include "ignis_display.h"
-#include "ignis_keymap.h"
+/* Includes ------------------------------------------------------------------*/
+#include "k_hal_gpio_mock.h"
 
 /* Macros --------------------------------------------------------------------*/
 /* Typedefs ------------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
 /* Constants -----------------------------------------------------------------*/
 /* Variables -----------------------------------------------------------------*/
-
 /* Function Definitions ------------------------------------------------------*/
-
-int ignis_main(void)
-{
-    ignis_buzzer_start();
-    ignis_keymap_start();
-    ignis_display_init();
-    ignis_core_start();
-    return 0;
-}
+DEFINE_FAKE_VALUE_FUNC(int, k_hal_gpio_create, k_hal_gpio_t *, uint8_t, k_hal_gpio_direction_t, k_hal_gpio_level_t,
+                       bool, bool)
+DEFINE_FAKE_VOID_FUNC(k_hal_gpio_set_level, k_hal_gpio_t *, k_hal_gpio_level_t)

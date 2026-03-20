@@ -28,16 +28,19 @@ void ignis_keymap_start(void)
     k_ghost_io_register_interface("keymap", ignis_keymap_host_interface_callback, NULL, NULL);
 }
 
-void ignis_keymap_register_callback(const ignis_keymap_callback_t callback) { ignis_keymap_ctx.generic_ctx.callback = callback; }
+void ignis_keymap_register_callback(const ignis_keymap_callback_t callback)
+{
+    ignis_keymap_ctx.generic_ctx.callback = callback;
+}
 
-int ignis_keymap_host_interface_callback(const cJSON *input_data_p, void *user_data_p)
+int ignis_keymap_host_interface_callback(const cJSON* input_data_p, void* user_data_p)
 {
     (void)user_data_p;
-    int    ret_code  = -1;
-    const cJSON *data_item = cJSON_GetObjectItem(input_data_p, "data");
+    int ret_code = -1;
+    const cJSON* data_item = cJSON_GetObjectItem(input_data_p, "data");
     if (data_item)
     {
-        const cJSON *key_item = cJSON_GetObjectItem(data_item, "key");
+        const cJSON* key_item = cJSON_GetObjectItem(data_item, "key");
         if (key_item && cJSON_IsString(key_item) && ignis_keymap_ctx.generic_ctx.callback)
         {
             const ignis_keymap_key_t key = ignis_keymap_translate_key_string(key_item->valuestring);
@@ -51,56 +54,55 @@ int ignis_keymap_host_interface_callback(const cJSON *input_data_p, void *user_d
     return ret_code;
 }
 
-ignis_keymap_key_t ignis_keymap_translate_key_string(const char *key_string)
+ignis_keymap_key_t ignis_keymap_translate_key_string(const char* key_string)
 {
     ignis_keymap_key_t key;
     switch (key_string[0])
     {
-        case '0':
-            key = IGNIS_KEYMAP_KEY_0;
-            break;
-        case '1':
-            key = IGNIS_KEYMAP_KEY_1;
-            break;
-        case '2':
-            key = IGNIS_KEYMAP_KEY_2;
-            break;
-        case '3':
-            key = IGNIS_KEYMAP_KEY_3;
-            break;
-        case '4':
-            key = IGNIS_KEYMAP_KEY_4;
-            break;
-        case '5':
-            key = IGNIS_KEYMAP_KEY_5;
-            break;
-        case '6':
-            key = IGNIS_KEYMAP_KEY_6;
-            break;
-        case '7':
-            key = IGNIS_KEYMAP_KEY_7;
-            break;
-        case '8':
-            key = IGNIS_KEYMAP_KEY_8;
-            break;
-        case '9':
-            key = IGNIS_KEYMAP_KEY_9;
-            break;
-        default:
-            if (0 == strcmp(key_string, "enter"))
-            {
-                key = IGNIS_KEYMAP_KEY_ENTER;
-            }
-            else if (0 == strcmp(key_string, "esc"))
-            {
-                key = IGNIS_KEYMAP_KEY_ESC;
-            }
-            else
-            {
-                key = IGNIS_KEYMAP_KEY_INVALID;
-            }
-            break;
+    case '0':
+        key = IGNIS_KEYMAP_KEY_0;
+        break;
+    case '1':
+        key = IGNIS_KEYMAP_KEY_1;
+        break;
+    case '2':
+        key = IGNIS_KEYMAP_KEY_2;
+        break;
+    case '3':
+        key = IGNIS_KEYMAP_KEY_3;
+        break;
+    case '4':
+        key = IGNIS_KEYMAP_KEY_4;
+        break;
+    case '5':
+        key = IGNIS_KEYMAP_KEY_5;
+        break;
+    case '6':
+        key = IGNIS_KEYMAP_KEY_6;
+        break;
+    case '7':
+        key = IGNIS_KEYMAP_KEY_7;
+        break;
+    case '8':
+        key = IGNIS_KEYMAP_KEY_8;
+        break;
+    case '9':
+        key = IGNIS_KEYMAP_KEY_9;
+        break;
+    default:
+        if (0 == strcmp(key_string, "enter"))
+        {
+            key = IGNIS_KEYMAP_KEY_ENTER;
+        }
+        else if (0 == strcmp(key_string, "esc"))
+        {
+            key = IGNIS_KEYMAP_KEY_ESC;
+        }
+        else
+        {
+            key = IGNIS_KEYMAP_KEY_INVALID;
+        }
+        break;
     }
-    printf("Received key: %d\n\r",key);
     return key;
 }

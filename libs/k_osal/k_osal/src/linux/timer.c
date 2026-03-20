@@ -24,7 +24,7 @@ int k_osal_timer_create(k_osal_timer_t *const timer, const uint32_t timer_period
                         const k_osal_timer_callback_t callback, void *const params)
 {
     int ret_code = -1;
-    if (timer && callback && timer_period > 0)
+    if (timer && callback)
     {
         timer->timer_handle = calloc(1, sizeof(k_osal_timer_priv_t));
         if (timer->timer_handle)
@@ -112,6 +112,13 @@ int k_osal_timer_stop(const k_osal_timer_t timer)
         }
     }
     return ret_code;
+}
+
+int k_osal_timer_set_period(const k_osal_timer_t timer, const uint32_t period_ms)
+{
+    k_osal_timer_priv_t *timer_priv = timer.timer_handle;
+    k_osal_timer_stop(timer);
+    timer_priv->period_ms = period_ms;
 }
 
 int k_osal_timer_delete(k_osal_timer_t timer)

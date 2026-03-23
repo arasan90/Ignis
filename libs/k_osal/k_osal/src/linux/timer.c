@@ -59,6 +59,10 @@ int k_osal_timer_create(k_osal_timer_t *const timer, const uint32_t timer_period
                         ret_code            = 0;
                     }
                 }
+                else
+                {
+                    ret_code = 0;
+                }
             }
         }
     }
@@ -119,6 +123,7 @@ int k_osal_timer_set_period(const k_osal_timer_t timer, const uint32_t period_ms
     k_osal_timer_priv_t *timer_priv = timer.timer_handle;
     k_osal_timer_stop(timer);
     timer_priv->period_ms = period_ms;
+    return 0;
 }
 
 int k_osal_timer_delete(k_osal_timer_t timer)
@@ -131,12 +136,16 @@ int k_osal_timer_delete(k_osal_timer_t timer)
 
 void k_osal_timer_callback_func(union sigval timer_data)
 {
-    const k_osal_timer_priv_t *timer_priv = timer_data.sival_ptr;
+    k_osal_timer_priv_t *timer_priv = timer_data.sival_ptr;
     if (timer_priv)
     {
         if (timer_priv && timer_priv->callback)
         {
             timer_priv->callback(timer_priv->params);
+            if (!timer_priv->periodic)
+            {
+                timer_priv->started = false;
+            }
         }
     }
 }

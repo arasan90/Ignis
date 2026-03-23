@@ -24,6 +24,7 @@ typedef struct ignis_display_ctx_s
 {
     uint8_t display_digits[4];
     bool    initialized;
+    bool    time_representation;
 } ignis_display_ctx_t;
 
 /* Constants -----------------------------------------------------------------*/

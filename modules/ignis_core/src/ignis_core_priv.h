@@ -16,15 +16,19 @@
 
 /* Macros --------------------------------------------------------------------*/
 #ifdef __cplusplus
-extern "C" {
-
-
-
+extern "C"
+{
 #endif
-#define IGNIS_CORE_CONTEXT_INIT()                                                                                                          \
-    {                                                                                                                                      \
-        .timer = {0}, .state = IGNIS_CORE_STATE_IDLE, .display_digits = {0x00, 0x00, 0x00, 0x00}, .defuse_code = {0x00, 0x00, 0x00, 0x00}, \
-        .total_time_min = 0, .buzzing_time_min = 0, .elapsed_time_min = 0,                                                                 \
+#define IGNIS_CORE_CONTEXT_INIT()                              \
+    {                                                          \
+        .timer                     = {0},                      \
+        .state                     = IGNIS_CORE_STATE_IDLE,    \
+        .display_digits            = {0x00, 0x00, 0x00, 0x00}, \
+        .defuse_code               = {0x00, 0x00, 0x00, 0x00}, \
+        .total_time_min            = 0,                        \
+        .buzzing_time_sec          = 0,                        \
+        .elapsed_time_sec          = 0,                        \
+        .time_elapsed_latest_input = 0,                        \
     }
 #define IGNIS_CORE_IS_DIGITS_BUFFER_EMPTY()                                                                                                          \
     (ignis_core_context.display_digits[0] == 0x00 && ignis_core_context.display_digits[1] == 0x00 && ignis_core_context.display_digits[2] == 0x00 && \
@@ -44,14 +48,16 @@ typedef enum ignis_core_state_e
 
 typedef struct ignis_core_context_s
 {
-    k_osal_timer_t timer; //!< Timer to manage the playtime
-    size_t total_time_min; //!< Total bomb time in minutes
-    size_t buzzing_time_min; //!< Buzzing time in minutes
-    size_t elapsed_time_min; //!< Elapsed time from when the prop has been armed in minutes
-    ignis_core_state_t state; //!< Ignis core current state
-    uint8_t display_digits[4]; //!< Ignis core display digits
-    uint8_t defuse_code[4]; //!< Code to defuse the bomb
-} ignis_core_context_t; //!< Ignis core context
+    k_osal_timer_t     timer;                      //!< Timer to manage the playtime
+    size_t             total_time_min;             //!< Total bomb time in minutes
+    size_t             buzzing_time_sec;           //!< Buzzing time in seconds
+    size_t             elapsed_time_sec;           //!< Elapsed time from when the prop has been armed in seconds
+    size_t             time_elapsed_latest_input;  //! Time elapsed from the last time the user input some data using the keyboard
+    ignis_core_state_t state;                      //!< Ignis core current state
+    uint8_t            display_digits[4];          //!< Ignis core display digits
+    uint8_t            defuse_code[4];             //!< Code to defuse the bomb
+    bool               time_dots_active;           //!< Flag to indicate if the time dots on the display should be active
+} ignis_core_context_t;                            //!< Ignis core context
 
 extern ignis_core_context_t ignis_core_context;
 
@@ -103,6 +109,19 @@ void ignis_core_reset_display_buffer(void);
  * @return The total time in minutes as a size_t value.
  */
 size_t ignis_core_calculate_time_min(const uint8_t digits[4]);
+
+/**
+ * Calculates the total time in seconds based on the input array of digits.
+ * The digits array represents a time value in the following format:
+ * - digits[3]: seconds (0-9)
+ * - digits[2]: tens of seconds (0-9)
+ * - digits[1]: hundreads of seconds (0-9)
+ * - digits[0]: thousands of seconds (0-9)
+ *
+ * @param digits An array of 4 uint8_t values representing seconds as described above.
+ * @return The total time in seconds as a size_t value.
+ */
+size_t ignis_core_calculate_time_sec(const uint8_t digits[4]);
 
 /**
  * @brief Calculates the individual digits to be displayed based on the remaining time in minutes.

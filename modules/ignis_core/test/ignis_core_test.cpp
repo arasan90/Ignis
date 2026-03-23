@@ -110,7 +110,7 @@ TEST_F(IgnisCoreTest, SendDataToDisplayWhenAKeyIsPressed)
     EXPECT_EQ(ignis_display_send_numeric_data_fake.arg0_val[3], 4);
 }
 
-TEST_F(IgnisCoreTest, CalculateTimeFromDigits)
+TEST_F(IgnisCoreTest, CalculateTimeMinutesFromDigits)
 {
     constexpr uint8_t digits_10_minutes[4]          = {0, 0, 1, 0};
     constexpr uint8_t digits_1_hour[4]              = {0, 1, 0, 0};
@@ -120,6 +120,18 @@ TEST_F(IgnisCoreTest, CalculateTimeFromDigits)
     EXPECT_EQ(ignis_core_calculate_time_min(digits_1_hour), 60);
     EXPECT_EQ(ignis_core_calculate_time_min(digits_1_hour_10_minutes), 70);
     EXPECT_EQ(ignis_core_calculate_time_min(digits_14_hours_25_minutes), 60 * 14 + 25);
+}
+
+TEST_F(IgnisCoreTest, CalculateTimeSecondsFromDigits)
+{
+    constexpr uint8_t digits_10_seconds[4]   = {0, 0, 1, 0};
+    constexpr uint8_t digits_100_seconds[4]  = {0, 1, 0, 0};
+    constexpr uint8_t digits_110_seconds[4]  = {0, 1, 1, 0};
+    constexpr uint8_t digits_1425_seconds[4] = {1, 4, 2, 5};
+    EXPECT_EQ(ignis_core_calculate_time_sec(digits_10_seconds), 10);
+    EXPECT_EQ(ignis_core_calculate_time_sec(digits_100_seconds), 100);
+    EXPECT_EQ(ignis_core_calculate_time_sec(digits_110_seconds), 110);
+    EXPECT_EQ(ignis_core_calculate_time_sec(digits_1425_seconds), 1425);
 }
 
 TEST_F(IgnisCoreTest, SetUpGame)
@@ -139,7 +151,7 @@ TEST_F(IgnisCoreTest, SetUpGame)
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_1);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_0);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_ENTER);
-    EXPECT_EQ(ignis_core_context.buzzing_time_min, 10);
+    EXPECT_EQ(ignis_core_context.buzzing_time_sec, 10);
     EXPECT_EQ(ignis_core_context.state, IGNIS_CORE_STATE_PROGRAMMING_CODE);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_5);
     ignis_core_keymap_callback(IGNIS_KEYMAP_KEY_7);

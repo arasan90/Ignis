@@ -11,12 +11,15 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "ignis_buzzer.h"
 #include "ignis_core_priv.h"
 #include "ignis_display.h"
 #include "ignis_keymap.h"
-#include "ignis_buzzer.h"
 
 /* Macros --------------------------------------------------------------------*/
+#define IGNIS_CORE_TIMER_PERIOD_MS                              (1000)
+#define IGNIS_CORE_DISPLAY_REFRESH_PERIOD_AFTER_LAST_INPUT_SECS (10)
+
 /* Typedefs ------------------------------------------------------------------*/
 /* Function Declarations -----------------------------------------------------*/
 /* Constants -----------------------------------------------------------------*/
@@ -28,7 +31,7 @@ void ignis_core_start(void)
 {
     if (!ignis_core_context.timer.timer_handle)
     {
-        k_osal_timer_create(&ignis_core_context.timer, 1000 * 60, true, false, ignis_core_timer_callback, NULL);
+        k_osal_timer_create(&ignis_core_context.timer, IGNIS_CORE_TIMER_PERIOD_MS, true, false, ignis_core_timer_callback, NULL);
     }
     ignis_keymap_register_callback(ignis_core_keymap_callback);
     ignis_display_send_string("safe");
@@ -37,126 +40,131 @@ void ignis_core_start(void)
 void ignis_core_keymap_callback(const ignis_keymap_key_t key)
 {
     /* Code to be always executed */
+    if (IGNIS_CORE_STATE_ARMED == ignis_core_context.state)
+    {
+        if (IGNIS_KEYMAP_KEY_ESC != key)
+        {
+            ignis_core_context.time_elapsed_latest_input = 0;
+        }
+        else
+        {
+            ignis_core_context.time_elapsed_latest_input = IGNIS_CORE_DISPLAY_REFRESH_PERIOD_AFTER_LAST_INPUT_SECS;
+        }
+    }
     if (IGNIS_CORE_STATE_EXPLODED == ignis_core_context.state)
     {
         ignis_buzzer_alarm_shutoff();
         ignis_core_context.state = IGNIS_CORE_STATE_IDLE;
         memset(ignis_core_context.defuse_code, 0, sizeof(ignis_core_context.defuse_code));
-        ignis_core_context.total_time_min = ignis_core_context.buzzing_time_min = 0;
+        ignis_core_context.total_time_min = ignis_core_context.buzzing_time_sec = 0;
         ignis_display_send_string("safe");
         return;
     }
     switch (key)
     {
-    case IGNIS_KEYMAP_KEY_0:
-    case IGNIS_KEYMAP_KEY_1:
-    case IGNIS_KEYMAP_KEY_2:
-    case IGNIS_KEYMAP_KEY_3:
-    case IGNIS_KEYMAP_KEY_4:
-    case IGNIS_KEYMAP_KEY_5:
-    case IGNIS_KEYMAP_KEY_6:
-    case IGNIS_KEYMAP_KEY_7:
-    case IGNIS_KEYMAP_KEY_8:
-    case IGNIS_KEYMAP_KEY_9:
-        if (IGNIS_CORE_STATE_READY_TO_BE_ARMED != ignis_core_context.state && IGNIS_CORE_STATE_IDLE !=
-            ignis_core_context.state)
-        {
-            ignis_core_add_digit_to_display_buffer(key);
-            bool is_time =
-                IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME == ignis_core_context.state ||
-                IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME == ignis_core_context.state;
-            ignis_display_send_numeric_data(ignis_core_context.display_digits, is_time);
-        }
-        break;
-    case IGNIS_KEYMAP_KEY_ENTER:
-        // Move on with state
-        switch (ignis_core_context.state)
-        {
-        case IGNIS_CORE_STATE_IDLE:
-            ignis_core_context.elapsed_time_min = 0;
-            ignis_core_reset_display_buffer();
-            ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME;
-            ignis_display_send_string("cnt");
+        case IGNIS_KEYMAP_KEY_0:
+        case IGNIS_KEYMAP_KEY_1:
+        case IGNIS_KEYMAP_KEY_2:
+        case IGNIS_KEYMAP_KEY_3:
+        case IGNIS_KEYMAP_KEY_4:
+        case IGNIS_KEYMAP_KEY_5:
+        case IGNIS_KEYMAP_KEY_6:
+        case IGNIS_KEYMAP_KEY_7:
+        case IGNIS_KEYMAP_KEY_8:
+        case IGNIS_KEYMAP_KEY_9:
+            if (IGNIS_CORE_STATE_READY_TO_BE_ARMED != ignis_core_context.state && IGNIS_CORE_STATE_IDLE != ignis_core_context.state)
+            {
+                ignis_core_add_digit_to_display_buffer(key);
+                const bool is_time = IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME == ignis_core_context.state;
+                ignis_display_send_numeric_data(ignis_core_context.display_digits, is_time);
+            }
             break;
-        case IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME:
+        case IGNIS_KEYMAP_KEY_ENTER:
+            // Move on with state
+            switch (ignis_core_context.state)
+            {
+                case IGNIS_CORE_STATE_IDLE:
+                    ignis_core_context.elapsed_time_sec = 0;
+                    ignis_core_reset_display_buffer();
+                    ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME;
+                    ignis_display_send_string("cnt");
+                    break;
+                case IGNIS_CORE_STATE_PROGRAMMING_TOTAL_TIME:
 
-            ignis_core_context.total_time_min = ignis_core_calculate_time_min(ignis_core_context.display_digits);
-            ignis_core_reset_display_buffer();
-            if (ignis_core_context.total_time_min > 0)
-            {
-                ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME;
-                ignis_display_send_string("buzz");
+                    ignis_core_context.total_time_min = ignis_core_calculate_time_min(ignis_core_context.display_digits);
+                    ignis_core_reset_display_buffer();
+                    if (ignis_core_context.total_time_min > 0)
+                    {
+                        ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME;
+                        ignis_display_send_string("buzz");
+                    }
+                    break;
+                case IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME:
+                    ignis_core_context.buzzing_time_sec = ignis_core_calculate_time_sec(ignis_core_context.display_digits);
+                    ignis_core_reset_display_buffer();
+                    ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_CODE;
+                    ignis_display_send_string("code");
+                    break;
+                case IGNIS_CORE_STATE_PROGRAMMING_CODE:
+                    memcpy(ignis_core_context.defuse_code, ignis_core_context.display_digits, sizeof(ignis_core_context.defuse_code));
+                    ignis_core_reset_display_buffer();
+                    ignis_core_context.state = IGNIS_CORE_STATE_READY_TO_BE_ARMED;
+                    ignis_display_send_string("rdy");
+                    break;
+                case IGNIS_CORE_STATE_READY_TO_BE_ARMED:
+                {
+                    uint8_t digits[4] = {0};
+                    ignis_core_calculate_digits(digits, ignis_core_context.total_time_min);
+                    ignis_display_send_numeric_data(digits, true);
+                    ignis_core_context.state = IGNIS_CORE_STATE_ARMED;
+                    k_osal_timer_start(ignis_core_context.timer);
+                }
+                break;
+                case IGNIS_CORE_STATE_ARMED:
+                    if (0 == memcmp(ignis_core_context.defuse_code, ignis_core_context.display_digits, sizeof(ignis_core_context.defuse_code)))
+                    {
+                        ignis_buzzer_alarm_shutoff();
+                        ignis_core_reset_display_buffer();
+                        ignis_core_context.state = IGNIS_CORE_STATE_IDLE;
+                        memset(ignis_core_context.defuse_code, 0, sizeof(ignis_core_context.defuse_code));
+                        ignis_core_context.total_time_min = ignis_core_context.buzzing_time_sec = 0;
+                        ignis_display_send_string("safe");
+                        k_osal_timer_stop(ignis_core_context.timer);
+                    }
+                    else
+                    {
+                        /* Wrong code */
+                        ignis_core_reset_display_buffer();
+                        ignis_display_send_string("err");
+                    }
+                    break;
+                default:
+                    break;
             }
             break;
-        case IGNIS_CORE_STATE_PROGRAMMING_BUZZER_TIME:
-            ignis_core_context.buzzing_time_min = ignis_core_calculate_time_min(ignis_core_context.display_digits);
-            ignis_core_reset_display_buffer();
-            ignis_core_context.state = IGNIS_CORE_STATE_PROGRAMMING_CODE;
-            ignis_display_send_string("code");
-            break;
-        case IGNIS_CORE_STATE_PROGRAMMING_CODE:
-            memcpy(ignis_core_context.defuse_code, ignis_core_context.display_digits,
-                   sizeof(ignis_core_context.defuse_code));
-            ignis_core_reset_display_buffer();
-            ignis_core_context.state = IGNIS_CORE_STATE_READY_TO_BE_ARMED;
-            ignis_display_send_string("rdy");
-            break;
-        case IGNIS_CORE_STATE_READY_TO_BE_ARMED:
+        case IGNIS_KEYMAP_KEY_ESC:
+            if (IGNIS_CORE_STATE_ARMED != ignis_core_context.state && IGNIS_CORE_IS_DIGITS_BUFFER_EMPTY())
             {
-                uint8_t digits[4] = {0};
-                ignis_core_calculate_digits(digits, ignis_core_context.total_time_min);
-                ignis_display_send_numeric_data(digits, true);
-                ignis_core_context.state = IGNIS_CORE_STATE_ARMED;
-                k_osal_timer_start(ignis_core_context.timer);
-            }
-            break;
-        case IGNIS_CORE_STATE_ARMED:
-            if (0 == memcmp(ignis_core_context.defuse_code, ignis_core_context.display_digits,
-                            sizeof(ignis_core_context.defuse_code)))
-            {
-                ignis_buzzer_alarm_shutoff();
-                ignis_core_reset_display_buffer();
                 ignis_core_context.state = IGNIS_CORE_STATE_IDLE;
-                memset(ignis_core_context.defuse_code, 0, sizeof(ignis_core_context.defuse_code));
-                ignis_core_context.total_time_min = ignis_core_context.buzzing_time_min = 0;
                 ignis_display_send_string("safe");
-                k_osal_timer_stop(ignis_core_context.timer);
             }
             else
             {
-                /* Wrong code */
                 ignis_core_reset_display_buffer();
-                ignis_display_send_string("err");
+                if (IGNIS_CORE_STATE_ARMED == ignis_core_context.state)
+                {
+                    uint8_t digits[4] = {0};
+                    ignis_core_calculate_digits(digits, (ignis_core_context.total_time_min - (ignis_core_context.elapsed_time_sec / 60)));
+                    ignis_display_send_numeric_data(digits, true);
+                }
+                else
+                {
+                    ignis_display_send_numeric_data(ignis_core_context.display_digits, 0);
+                }
             }
             break;
         default:
             break;
-        }
-        break;
-    case IGNIS_KEYMAP_KEY_ESC:
-        if (IGNIS_CORE_STATE_ARMED != ignis_core_context.state && IGNIS_CORE_IS_DIGITS_BUFFER_EMPTY())
-        {
-            ignis_core_context.state = IGNIS_CORE_STATE_IDLE;
-            ignis_display_send_string("safe");
-        }
-        else
-        {
-            ignis_core_reset_display_buffer();
-            if (IGNIS_CORE_STATE_ARMED == ignis_core_context.state)
-            {
-                uint8_t digits[4] = {0};
-                ignis_core_calculate_digits(
-                    digits, ignis_core_context.total_time_min - ignis_core_context.elapsed_time_min);
-                ignis_display_send_numeric_data(digits, true);
-            }
-            else
-            {
-                ignis_display_send_numeric_data(ignis_core_context.display_digits, 0);
-            }
-        }
-        break;
-    default:
-        break;
     }
 }
 
@@ -169,10 +177,7 @@ void ignis_core_add_digit_to_display_buffer(const int8_t digit)
     ignis_core_context.display_digits[3] = digit;
 }
 
-void ignis_core_reset_display_buffer(void)
-{
-    memset(ignis_core_context.display_digits, 0, sizeof(ignis_core_context.display_digits));
-}
+void ignis_core_reset_display_buffer(void) { memset(ignis_core_context.display_digits, 0, sizeof(ignis_core_context.display_digits)); }
 
 size_t ignis_core_calculate_time_min(const uint8_t digits[4])
 {
@@ -190,6 +195,8 @@ size_t ignis_core_calculate_time_min(const uint8_t digits[4])
     return time_min;
 }
 
+size_t ignis_core_calculate_time_sec(const uint8_t digits[4]) { return (digits[3] + digits[2] * 10 + digits[1] * 100 + digits[0] * 1000); }
+
 void ignis_core_calculate_digits(uint8_t digits[4], size_t time_min)
 {
     digits[0] = time_min / 600;
@@ -205,18 +212,24 @@ void ignis_core_timer_callback(void* params)
 {
     (void)params;
     uint8_t digits[4] = {0};
-    ignis_core_context.elapsed_time_min++;
-    size_t remaining_time_min = ignis_core_context.total_time_min - ignis_core_context.elapsed_time_min;
-    ignis_core_calculate_digits(digits, remaining_time_min);
-    ignis_display_send_numeric_data(digits, true);
-    if (ignis_core_context.elapsed_time_min == ignis_core_context.total_time_min)
+    ignis_core_context.elapsed_time_sec++;
+    const size_t remaining_time_min = ignis_core_context.total_time_min - ignis_core_context.elapsed_time_sec / 60;
+
+    ignis_core_context.time_elapsed_latest_input++;
+    if (ignis_core_context.time_elapsed_latest_input >= IGNIS_CORE_DISPLAY_REFRESH_PERIOD_AFTER_LAST_INPUT_SECS)
+    {
+        ignis_core_calculate_digits(digits, remaining_time_min);
+        ignis_display_send_numeric_data(digits, ignis_core_context.time_dots_active);
+        ignis_core_context.time_dots_active = !ignis_core_context.time_dots_active;
+        ignis_core_reset_display_buffer();
+    }
+    if (ignis_core_context.elapsed_time_sec / 60 == ignis_core_context.total_time_min)
     {
         ignis_buzzer_sound_long_alarm();
         ignis_core_context.state = IGNIS_CORE_STATE_EXPLODED;
         k_osal_timer_stop(ignis_core_context.timer);
     }
-    else if (0 != ignis_core_context.buzzing_time_min && 0 == ignis_core_context.elapsed_time_min % ignis_core_context.
-        buzzing_time_min)
+    else if (0 != ignis_core_context.buzzing_time_sec && 0 == ignis_core_context.elapsed_time_sec % ignis_core_context.buzzing_time_sec)
     {
         ignis_buzzer_sound_short_alarm();
     }

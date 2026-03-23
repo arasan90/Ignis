@@ -17,6 +17,7 @@ set(PRIVATE_INCLUDES
 set(PRIVATE_LINKS
         ignis_keymap_mock
         ignis_display_mock
+        ignis_buzzer_mock
         k_osal_mock
         GTest::gtest_main
 )

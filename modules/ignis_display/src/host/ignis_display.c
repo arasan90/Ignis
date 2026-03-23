@@ -36,11 +36,11 @@ void ignis_display_init(void)
 }
 void ignis_display_send_numeric_data(const uint8_t *data, const bool time)
 {
-    (void)time;
     for (int i = 0; i < 4; i++)
     {
         ignis_display_ctx.display_digits[i] = 0x30 + data[i];
     }
+    ignis_display_ctx.time_representation = time;
     ignis_display_sync_cb();
 }
 
@@ -59,19 +59,23 @@ void ignis_display_send_string(const char *text)
             ignis_display_ctx.display_digits[i] = '\x1F';  // Blank char
         }
     }
+    ignis_display_ctx.time_representation = false;
     ignis_display_sync_cb();
 }
 
 void ignis_display_sync_cb(void)
 {
-    const size_t space_needed = snprintf(NULL, 0, "{\"interface\":\"display\",\"value\":\"%c%c%c%c\"}", ignis_display_ctx.display_digits[0],
-                                         ignis_display_ctx.display_digits[1], ignis_display_ctx.display_digits[2], ignis_display_ctx.display_digits[3]) +
+    const char  *string_template_no_time   = "{\"interface\":\"display\",\"value\":\"%c%c%c%c\"}";
+    const char  *string_template_with_time = "{\"interface\":\"display\",\"value\":\"%c%c:%c%c\"}";
+    const char  *string_template           = ignis_display_ctx.time_representation ? string_template_with_time : string_template_no_time;
+    const size_t space_needed              = snprintf(NULL, 0, string_template, ignis_display_ctx.display_digits[0], ignis_display_ctx.display_digits[1],
+                                                      ignis_display_ctx.display_digits[2], ignis_display_ctx.display_digits[3]) +
                                 1;
     char *event_data = calloc(space_needed, sizeof(char));
     if (event_data)
     {
-        snprintf(event_data, space_needed, "{\"interface\":\"display\",\"value\":\"%c%c%c%c\"}", ignis_display_ctx.display_digits[0],
-                 ignis_display_ctx.display_digits[1], ignis_display_ctx.display_digits[2], ignis_display_ctx.display_digits[3]);
+        snprintf(event_data, space_needed, string_template, ignis_display_ctx.display_digits[0], ignis_display_ctx.display_digits[1],
+                 ignis_display_ctx.display_digits[2], ignis_display_ctx.display_digits[3]);
         k_ghost_io_send_event(event_data);
     }
     free(event_data);
